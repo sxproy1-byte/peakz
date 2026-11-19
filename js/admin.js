@@ -137,18 +137,25 @@
   function closeChat() { clearTimeout(wsTimer); if (ws) { ws.onclose = null; ws.close(); ws = null; } setState(false, "غير متصل"); }
   // مفاتيح Pusher العامة المعروفة لكيك (نجرّبها بالتناوب إذا ما اشتغل الأول)
   const PUSHER_KEYS = ["32cbd69e4b950bf97679", "eb1d5f283081a78b932c"];
+  const CLUSTERS = ["us2", "us3", "mt1", "eu", "ap1", "ap2", "ap3", "ap4", "sa1"];
+  const COMBOS = [];
+  PUSHER_KEYS.forEach((k) => CLUSTERS.forEach((c) => COMBOS.push([k, c])));
   let keyIdx = 0, everUp = false, lastErr = "";
+  try { const s = localStorage.getItem("pusherCombo"); const i = COMBOS.findIndex((x) => x.join("|") === s); if (i >= 0) keyIdx = i; } catch (e) {}
   function openChat() {
     if (!chatroomId || ws) return;
-    const key = PUSHER_KEYS[keyIdx % PUSHER_KEYS.length];
-    setState(false, "جاري الاتصال... (مفتاح " + ((keyIdx % PUSHER_KEYS.length) + 1) + ")");
+    const [key, cluster] = COMBOS[keyIdx % COMBOS.length];
+    setState(false, "جاري الاتصال... (" + cluster + " · " + ((keyIdx % COMBOS.length) + 1) + "/" + COMBOS.length + ")");
     let opened = false;
-    ws = new WebSocket("wss://ws-us2.pusher.com/app/" + key + "?protocol=7&client=js&version=8.4.0&flash=false");
+    ws = new WebSocket("wss://ws-" + cluster + ".pusher.com/app/" + key + "?protocol=7&client=js&version=8.4.0&flash=false");
     ws.onopen = () => { opened = true; };
     ws.onmessage = (e) => {
       let m; try { m = JSON.parse(e.data); } catch (x) { return; }
       if (m.event === "pusher:connection_established") ws.send(JSON.stringify({ event: "pusher:subscribe", data: { auth: "", channel: `chatrooms.${chatroomId}.v2` } }));
-      else if (m.event === "pusher_internal:subscription_succeeded") { everUp = true; lastErr = ""; setState(true, "متصل بالشات ✓"); }
+      else if (m.event === "pusher_internal:subscription_succeeded") {
+        everUp = true; lastErr = ""; setState(true, "متصل بالشات ✓");
+        try { localStorage.setItem("pusherCombo", COMBOS[keyIdx % COMBOS.length].join("|")); } catch (e) {}
+      }
       else if (m.event === "pusher:error") { lastErr = typeof m.data === "string" ? m.data : JSON.stringify(m.data); console.warn("pusher:error", lastErr); }
       else if (m.event === "pusher:ping") ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
       else if (m.event === "App\\Events\\ChatMessageEvent") { try { onChat(JSON.parse(m.data)); } catch (x) {} }
@@ -158,7 +165,7 @@
       if (!everUp) keyIdx++;                       // ما اتصل أبداً: جرّب المفتاح الثاني
       const why = lastErr ? " — " + lastErr : (opened ? " — كود " + ev.code : " — تعذّر فتح الاتصال (حاجب إعلانات أو شبكة؟)");
       setState(false, "انقطع الاتصال" + why + " — إعادة المحاولة...");
-      if (wantChat) wsTimer = setTimeout(openChat, 3000);
+      if (wantChat) wsTimer = setTimeout(openChat, everUp ? 3000 : 700);
     };
     ws.onerror = () => { console.warn("WebSocket error"); };
   }
