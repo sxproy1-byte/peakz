@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة التحكم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="index.html"></a>
+  <nav class="nav" id="nav"></nav>
+  <div class="top-end"><a class="follow" id="follow"></a><div class="row" id="userbox"></div></div>
+</div></header>
+<main class="page" id="root"><div class="empty">جاري التحميل...</div></main>
+<div class="overlay" id="draw">
+  <button class="btn ghost x" id="drawClose">إغلاق ✕</button>
+  <h2 id="dTitle"></h2>
+  <div class="prize" id="dPrize"></div>
+  <div class="hint" id="dInfo"></div>
+  <div class="reel" id="reel">—</div>
+  <div class="wlist" id="wlist"></div>
+  <div class="row">
+    <button class="btn primary" id="dStart">ابدأ السحب 🎲</button>
+    <button class="btn ghost" id="dMore" style="display:none">سحب فائز إضافي</button>
+  </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

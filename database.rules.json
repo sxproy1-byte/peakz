@@ -1,0 +1,31 @@
+{
+  "rules": {
+    "config": {
+      ".read": true,
+      ".write": "auth.token.admin === true"
+    },
+    "users": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth.uid === $uid || auth.token.admin === true",
+        ".validate": "newData.child('name').val() === auth.token.kickName || auth.token.admin === true"
+      }
+    },
+    "giveaways": {
+      ".read": true,
+      ".indexOn": ["createdAt"],
+      "$gid": {
+        ".write": "auth.token.admin === true"
+      }
+    },
+    "entries": {
+      "$gid": {
+        ".read": true,
+        "$uid": {
+          ".write": "auth.token.admin === true || (auth.uid === $uid && !data.exists() && root.child('giveaways').child($gid).child('status').val() === 'open' && root.child('giveaways').child($gid).child('endsAt').val() > now)",
+          ".validate": "newData.hasChildren(['name','source','at']) && (newData.child('name').val() === auth.token.kickName || auth.token.admin === true)"
+        }
+      }
+    }
+  }
+}
