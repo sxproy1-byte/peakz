@@ -3,7 +3,7 @@ window.CONFIG = {
   siteName: "PEAKZ",                 // اسم الموقع الظاهر
   streamerSlug: "peakz9",            // اسم قناة الستريمر على كيك (kick.com/peakz9)
   defaultKeyword: "peakz",           // الكلمة الافتراضية للدخول من الشات
-  workerUrl: "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev", // رابط Cloudflare Worker
+  workerUrl: "https://kick-login.roy515.workers.dev", // رابط Cloudflare Worker
 
   // من Firebase Console > Project settings > Your apps > Web app
   firebase: {
