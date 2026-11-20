@@ -48,6 +48,7 @@
       if (open) {
         const btn = !App.user ? `<button class="btn primary" data-login="1">سجّل دخول بكيك للمشاركة</button>`
           : mine ? `<button class="btn ghost" disabled>✓ تم دخولك السحب</button>`
+          : App.verified === false ? `<a class="btn primary" href="profile.html">⚠️ وثّق حسابك أولاً لتدخل</a>`
           : `<button class="btn primary" data-enter="${gid}">ادخل السحب</button>`;
         action = `<div class="timer" data-end="${g.endsAt}">${fmt(g.endsAt - App.now())}</div>${btn}
           <div class="hint">أو اكتب <code>${esc(g.keyword || C.defaultKeyword)}</code> بشات ${esc(C.streamerSlug)} على كيك</div>`;

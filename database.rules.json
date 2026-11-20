@@ -9,11 +9,14 @@
         ".read": true,
         ".write": "auth.uid === $uid || auth.token.admin === true",
         ".validate": "newData.child('name').val() === auth.token.kickName || auth.token.admin === true"
-      }
+      },
+      ".read": "auth.token.admin === true"
     },
     "giveaways": {
       ".read": true,
-      ".indexOn": ["createdAt"],
+      ".indexOn": [
+        "createdAt"
+      ],
       "$gid": {
         ".write": "auth.token.admin === true"
       }
@@ -21,10 +24,35 @@
     "entries": {
       "$gid": {
         ".read": true,
+        ".write": "auth.token.admin === true",
         "$uid": {
-          ".write": "auth.token.admin === true || (auth.uid === $uid && !data.exists() && root.child('giveaways').child($gid).child('status').val() === 'open' && root.child('giveaways').child($gid).child('endsAt').val() > now)",
+          ".write": "auth.token.admin === true || (auth.uid === $uid && root.child('verified').child(auth.uid).child('ok').val() === true && !data.exists() && root.child('giveaways').child($gid).child('status').val() === 'open' && root.child('giveaways').child($gid).child('endsAt').val() > now)",
           ".validate": "newData.hasChildren(['name','source','at']) && (newData.child('name').val() === auth.token.kickName || auth.token.admin === true)"
         }
+      }
+    },
+    "profiles": {
+      ".read": "auth.token.admin === true",
+      "$uid": {
+        ".read": "auth.uid === $uid || auth.token.admin === true",
+        "stake": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_.-]{2,40}$/)"
+        },
+        "wallet": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().matches(/^0x[a-fA-F0-9]{40}$/)"
+        },
+        "updatedAt": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "verified": {
+      ".read": "auth.token.admin === true",
+      "$uid": {
+        ".read": "auth.uid === $uid || auth.token.admin === true"
       }
     }
   }

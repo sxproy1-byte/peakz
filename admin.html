@@ -19,10 +19,12 @@
 <main class="page" id="root"><div class="empty">جاري التحميل...</div></main>
 <div class="overlay" id="draw">
   <button class="btn ghost x" id="drawClose">إغلاق ✕</button>
+  <button class="btn ghost small" id="dSound" style="position:absolute;top:18px;inset-inline-end:18px">🔊 الصوت</button>
   <h2 id="dTitle"></h2>
   <div class="prize" id="dPrize"></div>
   <div class="hint" id="dInfo"></div>
-  <div class="reel" id="reel">—</div>
+  <div class="case" id="case"><div class="case-marker"></div><div class="case-track" id="track"></div></div>
+  <div class="reveal" id="reveal"></div>
   <div class="wlist" id="wlist"></div>
   <div class="row">
     <button class="btn primary" id="dStart">ابدأ السحب 🎲</button>
@@ -34,6 +36,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="js/config.js"></script>
 <script src="js/common.js"></script>
+<script src="js/fair.js"></script>
+<script src="js/reel.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

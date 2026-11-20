@@ -8,6 +8,7 @@
   let all = {};
   const entries = {};      // gid -> {uid: entry}
   const entryRefs = {};
+  let users = {}, profiles = {}, verifiedMap = {}; const shown = new Set();
   let hook = null, lastChatAt = 0;   // حالة ربط الشات (Webhook)
 
   const isOpen = (g) => g.status === "open" && g.endsAt > App.now();
@@ -46,9 +47,21 @@
       </div>
 
       <div class="panel"><h2>🟢 المسابقات الجارية / بانتظار السحب</h2><div class="alist" id="active"></div></div>
-      <div class="panel"><h2>📜 المنتهية</h2><div class="alist" id="done"></div></div>`;
+      <div class="panel"><h2>📜 المنتهية</h2><div class="alist" id="done"></div></div>
+
+      <div class="panel"><h2>👥 المستخدمين <small id="uCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
+        <div class="row" style="margin-bottom:12px"><input id="uSearch" placeholder="ابحث بالاسم / ستيك / ديسكورد..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(5,7,15,.5)">
+          <button class="btn ghost small" id="uCsv">⬇️ تصدير CSV</button></div>
+        <div class="utable-wrap"><table class="utable"><thead><tr><th>كيك</th><th>الحالة</th><th>ديسكورد</th><th>ستيك</th><th>USDT (BSC)</th></tr></thead><tbody id="uBody"></tbody></table></div>
+        <p class="hint" style="text-align:start;margin-top:10px">العناوين مخفية افتراضياً عشان ما تظهر لو كنت عامل مشاركة شاشة بالبث.</p>
+      </div>`;
 
     document.getElementById("fCreate").onclick = create;
+    document.getElementById("uSearch").oninput = renderUsers;
+    document.getElementById("uCsv").onclick = exportCsv;
+    db.ref("users").on("value", (x) => { users = x.val() || {}; renderUsers(); });
+    db.ref("profiles").on("value", (x) => { profiles = x.val() || {}; renderUsers(); });
+    db.ref("verified").on("value", (x) => { verifiedMap = x.val() || {}; renderUsers(); });
     document.getElementById("crConnect").onclick = () => { location.href = C.workerUrl + "/connect?r=admin.html"; };
     db.ref("config/webhook").on("value", (x) => { hook = x.val(); renderChat(); });
     db.ref("config/lastChatAt").on("value", (x) => { lastChatAt = x.val() || 0; renderChat(); });
@@ -115,6 +128,42 @@
     }));
   }
 
+  // ---------------- المستخدمين ----------------
+  const mask = (w) => (w ? w.slice(0, 6) + "…" + w.slice(-4) : "—");
+  function rows() {
+    return Object.keys(users).map((uid) => {
+      const u = users[uid] || {}, p = profiles[uid] || {}, v = verifiedMap[uid] || {}, d = p.discord || {};
+      return { uid, kick: u.name || uid, discord: d.name || "", stake: p.stake || "", wallet: p.wallet || "", ok: v.ok === true, status: v.status || (d.id ? "" : "none"), last: u.lastLogin || 0 };
+    }).sort((a, b) => Number(b.ok) - Number(a.ok) || b.last - a.last);
+  }
+  function renderUsers() {
+    const body = document.getElementById("uBody"); if (!body) return;
+    const q = (document.getElementById("uSearch").value || "").trim().toLowerCase();
+    const all = rows(), list = all.filter((r) => !q || [r.kick, r.discord, r.stake].some((x) => String(x).toLowerCase().includes(q)));
+    document.getElementById("uCount").textContent = `(${all.length} مسجّل · ${all.filter((r) => r.ok).length} موثّق)`;
+    const tag = (r) => r.ok ? '<span class="vt ok">موثّق</span>' : r.status === "norole" ? '<span class="vt bad">بدون رول</span>' : r.status === "nomember" ? '<span class="vt bad">مو بالسيرفر</span>' : '<span class="vt">غير مربوط</span>';
+    body.innerHTML = list.length ? list.map((r) => `<tr>
+      <td>${esc(r.kick)}</td><td>${tag(r)}</td><td>${esc(r.discord) || "—"}</td><td dir="ltr">${esc(r.stake) || "—"}</td>
+      <td dir="ltr">${r.wallet ? `<span class="wal">${shown.has(r.uid) ? esc(r.wallet) : mask(r.wallet)}</span>
+        <button class="btn ghost small" data-eye="${r.uid}">${shown.has(r.uid) ? "إخفاء" : "إظهار"}</button><button class="btn ghost small" data-copy="${esc(r.wallet)}">نسخ</button>` : "—"}</td></tr>`).join("")
+      : `<tr><td colspan="5" class="msg">لا يوجد نتائج</td></tr>`;
+    body.querySelectorAll("[data-eye]").forEach((b) => (b.onclick = () => { const k = b.dataset.eye; shown.has(k) ? shown.delete(k) : shown.add(k); renderUsers(); }));
+    body.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = () => navigator.clipboard.writeText(b.dataset.copy).then(() => App.toast("تم النسخ ✓"), () => App.toast("تعذّر النسخ"))));
+  }
+  function exportCsv() {
+    const cell = (v) => { v = String(v ?? ""); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+    const out = [["Kick", "Verified", "Discord", "Stake", "USDT_BSC"].map(cell).join(",")]
+      .concat(rows().map((r) => [r.kick, r.ok ? "yes" : "no", r.discord, r.stake, r.wallet].map(cell).join(",")));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["\ufeff" + out.join("\n")], { type: "text/csv;charset=utf-8" }));
+    a.download = "peakz-users.csv"; a.click(); URL.revokeObjectURL(a.href);
+  }
+  async function adminApi(path) {
+    const t = await firebase.auth().currentUser.getIdToken();
+    const r = await fetch(C.workerUrl + path, { headers: { Authorization: "Bearer " + t } });
+    return r.json();
+  }
+
   // ---------------- حالة ربط الشات ----------------
   function ago(ms) {
     const t = Math.max(0, Math.floor((Date.now() - ms) / 1000));
@@ -137,19 +186,14 @@
   const $ = (id) => document.getElementById(id);
   let dGid = null, winners = [], spinning = false;
 
-  function secureInt(n) {            // رقم عشوائي منتظم بدون انحياز
-    const lim = Math.floor(0x100000000 / n) * n, a = new Uint32Array(1);
-    do crypto.getRandomValues(a); while (a[0] >= lim);
-    return a[0] % n;
-  }
-
   function openDraw(gid) {
     dGid = gid; const g = all[gid];
     winners = g.winners ? Object.entries(g.winners).map(([uid, w]) => ({ uid, name: w.name })) : [];
     $("dTitle").textContent = g.title;
     $("dPrize").textContent = g.prize ? "الجائزة: " + g.prize : "";
     $("dInfo").textContent = `${Object.keys(entries[gid] || {}).length} مشارك · ${g.winnersCount} فائز`;
-    $("reel").textContent = "—"; $("reel").classList.remove("win");
+    $("track").innerHTML = ""; $("case").classList.remove("done", "spinning");
+    $("reveal").classList.remove("show"); $("reveal").textContent = "";
     renderWinners();
     $("dStart").style.display = winners.length >= g.winnersCount ? "none" : "";
     $("dMore").style.display = winners.length ? "" : "none";
@@ -163,32 +207,40 @@
     $("wlist").innerHTML = winners.map((w, i) => `<div>🏆 الفائز ${i + 1}: <span>${esc(w.name)}</span></div>`).join("");
   }
 
+  let muted = false;
+  $("dSound").onclick = () => { muted = !muted; Reel.setMuted(muted); $("dSound").textContent = muted ? "🔇 صامت" : "🔊 الصوت"; };
+
   async function runDraw(count) {
     if (spinning) return;
-    const pool = Object.entries(entries[dGid] || {}).map(([uid, e]) => ({ uid, name: e.name }))
-      .filter((p) => !winners.some((w) => w.uid === p.uid));
+    const g = all[dGid];
+    if (!g || isOpen(g)) return App.toast("أنهِ الدخول أولاً");      // ما بنسحب والدخول لسا مفتوح
+    const live = Object.entries(entries[dGid] || {}).map(([uid, e]) => ({ uid, name: e.name }));
+    const names = live.map((p) => p.name);
+    let pool = live.filter((p) => !winners.some((w) => w.uid === p.uid));
     if (!pool.length) return App.toast("ما في مشاركين متبقين للسحب");
     spinning = true; $("dStart").disabled = $("dMore").disabled = true;
     count = Math.min(count, pool.length);
     for (let i = 0; i < count; i++) {
-      const pick = pool.splice(secureInt(pool.length), 1)[0];
-      const names = [pick, ...pool].map((p) => p.name);
-      $("reel").classList.remove("win");
-      const t0 = Date.now(), dur = 4500;
-      await new Promise((res) => {
-        (function tick() {
-          const k = (Date.now() - t0) / dur;
-          if (k >= 1) return res();
-          $("reel").textContent = names[secureInt(names.length)];
-          setTimeout(tick, 50 + k * k * 350);
-        })();
-      });
-      $("reel").textContent = pick.name; $("reel").classList.add("win");
+      // الاختيار قبل الأنيميشن، وبنتأكد إن الفائز لسا عنده رول التوثيق (وإلا بنستبعده وبنسحب غيره)
+      let pick = null;
+      while (pool.length && !pick) {
+        const c = Fair.pickWinners(pool, 1)[0];
+        pool = pool.filter((p) => p.uid !== c.uid);
+        let st;
+        try { st = (await adminApi("/discord/check?uid=" + encodeURIComponent(c.uid))).status; } catch (e) { st = "error"; }
+        if (st === "ok") pick = c;
+        else if (st === "error") { spinning = false; $("dStart").disabled = $("dMore").disabled = false; return App.toast("تعذّر التحقق من توثيق " + c.name + " — جرّب مرة ثانية"); }
+        else App.toast("تم استبعاد " + c.name + " (ما عنده رول التوثيق) وسحب غيره");
+      }
+      if (!pick) { App.toast("ما في مشاركين موثّقين متبقين"); break; }
+      $("reveal").classList.remove("show");
+      await Reel.spin($("case"), $("track"), names, pick.name);
+      $("reveal").textContent = "🏆 " + pick.name; $("reveal").classList.add("show");
       winners.push(pick); renderWinners();
-      await new Promise((r) => setTimeout(r, 1500));
+      const obj = {}; winners.forEach((w) => (obj[w.uid] = { name: w.name }));   // نحفظ كل فائز فور طلوعه
+      db.ref("giveaways/" + dGid).update({ winners: obj, status: "drawn", drawnAt: SV.TIMESTAMP, entriesCount: live.length }).catch(() => App.toast("تعذّر حفظ الفائز — تحقق من الاتصال"));
+      await new Promise((r) => setTimeout(r, 2800));
     }
-    const obj = {}; winners.forEach((w) => (obj[w.uid] = { name: w.name }));
-    await db.ref("giveaways/" + dGid).update({ winners: obj, status: "drawn", drawnAt: SV.TIMESTAMP, entriesCount: Object.keys(entries[dGid] || {}).length });
     spinning = false; $("dStart").disabled = $("dMore").disabled = false;
     $("dStart").style.display = "none"; $("dMore").style.display = "";
     App.toast("تم حفظ الفائزين ✓");

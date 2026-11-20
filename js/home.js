@@ -24,7 +24,7 @@
       box.querySelector("img.th").src = d.thumbnail + (d.thumbnail.includes("?") ? "&" : "?") + "t=" + Math.floor(Date.now() / 60000);
     } else { if (old) old.remove(); $("ph").style.display = ""; }
     $("sTitle").textContent = live ? d.title || "" : "البث متوقف حالياً";
-    $("sSub").textContent = live ? d.category || "" : "تابعنا على كيك لتوصلك إشعارات البث";
+    $("sSub").textContent = live ? d.category || "" : "";
   }
 
   async function poll() {
