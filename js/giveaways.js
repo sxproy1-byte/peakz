@@ -75,7 +75,7 @@
       return;
     }
     el.innerHTML = `<div class="tickets">${list.map((id) => card(id, all[id])).join("")}</div>`;
-    el.querySelectorAll("[data-login]").forEach((b) => (b.onclick = () => App.login("index.html")));
+    el.querySelectorAll("[data-login]").forEach((b) => (b.onclick = () => App.login("giveaways.html")));
     el.querySelectorAll("[data-enter]").forEach((b) => (b.onclick = () => enter(b.dataset.enter, b)));
   }
 

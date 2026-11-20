@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>المسابقات</title>
+<title>PEAKZ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="img/favicon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,14 +16,30 @@
   <div class="top-end"><a class="follow" id="follow"></a><div class="row" id="userbox"></div></div>
 </div></header>
 <main class="page">
-  <section class="hero">
-    <div><h1>مسابقات <em>وسحوبات</em></h1><p>ادخل السحب من الموقع أو اكتب كلمة المسابقة بشات البث، والفوز بيصير مباشرة على الستريم.</p></div>
-    <div class="tabs">
-      <button class="on" data-tab="current">الحالية</button>
-      <button data-tab="past">السابقة</button>
+  <section class="home-hero">
+    <div>
+      <div class="who">
+        <img class="pfp" id="pfp" src="img/logo.png" alt="">
+        <div><h1 id="hName">PEAKZ</h1><span class="st" id="hSt"><i></i><span>جاري الفحص...</span></span></div>
+      </div>
+      <p class="lead">أهلاً فيك بموقع مجتمع PEAKZ. ادخل المسابقات، تابع البطولات والبونص هانت، وكل شي مرتبط مباشرة ببث الستريمر على كيك.</p>
+      <div class="cta">
+        <a class="btn primary" id="hWatch" target="_blank" rel="noopener">شاهد البث على كيك</a>
+        <a class="btn ghost" href="giveaways.html">🎟️ المسابقات الحالية <span id="hCount"></span></a>
+      </div>
     </div>
+    <a class="stream off" id="stream" target="_blank" rel="noopener">
+      <div class="ph" id="ph"><img src="img/logo.png" alt=""></div>
+      <span class="tag" id="tag">...</span>
+      <div class="meta"><b id="sTitle"></b><small id="sSub"></small></div>
+    </a>
   </section>
-  <div id="list"></div>
+
+  <section class="quick">
+    <a class="qcard" href="giveaways.html"><div class="e">🎟️</div><b>المسابقات</b><span>ادخل السحب من الموقع أو بكتابة الكلمة بالشات.</span></a>
+    <a class="qcard" href="bonus.html"><span class="soon">قريباً</span><div class="e">🎯</div><b>البونص هانت</b><span>خمّن النتيجة وتابع القائمة مباشرة.</span></a>
+    <a class="qcard" href="tournaments.html"><span class="soon">قريباً</span><div class="e">⚔️</div><b>البطولات</b><span>جداول وجولات ونتائج البطولات.</span></a>
+  </section>
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -30,6 +47,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="js/config.js"></script>
 <script src="js/common.js"></script>
-<script src="js/giveaways.js"></script>
+<script src="js/home.js"></script>
 </body>
 </html>

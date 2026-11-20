@@ -8,8 +8,7 @@
   let all = {};
   const entries = {};      // gid -> {uid: entry}
   const entryRefs = {};
-  let chatroomId = "";
-  let ws = null, wsOn = false, wsTimer = null, wantChat = false;
+  let hook = null, lastChatAt = 0;   // حالة ربط الشات (Webhook)
 
   const isOpen = (g) => g.status === "open" && g.endsAt > App.now();
 
@@ -30,13 +29,9 @@
       <h1 class="plain">لوحة التحكم</h1>
 
       <div class="panel"><h2>🔌 ربط شات كيك</h2>
-        <div class="form">
-          <div class="field"><label>Chatroom ID لقناة ${esc(C.streamerSlug)}</label><input id="crid" inputmode="numeric" placeholder="مثال: 12345678"></div>
-          <div class="field"><label>&nbsp;</label><div class="row">
-            <button class="btn primary" id="crSave">حفظ وتشغيل الربط</button>
-            <button class="btn ghost" id="crStop">إيقاف</button></div></div>
-        </div>
-        <p class="hint" style="margin-top:10px;text-align:start"><span class="dot" id="dot"></span> <span id="chatState">غير متصل</span> — لازم تترك هذي الصفحة مفتوحة خلال البث حتى تنحسب كلمة الشات.</p>
+        <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px"><span class="dot" id="dot"></span> <span id="chatState">جاري الفحص...</span></p>
+        <div class="row"><button class="btn primary" id="crConnect">ربط الشات (للستريمر)</button></div>
+        <p class="hint" style="margin-top:10px;text-align:start">الستريمر يضغط الزر مرة وحدة بحسابه على كيك ويسمح للتطبيق. بعدها كلمة الشات بتنحسب تلقائياً 24/7 بدون ما تفتحوا هذي الصفحة.</p>
       </div>
 
       <div class="panel"><h2>🎁 مسابقة جديدة</h2>
@@ -54,14 +49,10 @@
       <div class="panel"><h2>📜 المنتهية</h2><div class="alist" id="done"></div></div>`;
 
     document.getElementById("fCreate").onclick = create;
-    document.getElementById("crSave").onclick = saveChat;
-    document.getElementById("crStop").onclick = () => { wantChat = false; closeChat(); };
-
-    db.ref("config/chatroomId").once("value").then((s) => {
-      chatroomId = s.val() || "";
-      document.getElementById("crid").value = chatroomId;
-      if (chatroomId) { wantChat = true; openChat(); }
-    });
+    document.getElementById("crConnect").onclick = () => { location.href = C.workerUrl + "/connect?r=admin.html"; };
+    db.ref("config/webhook").on("value", (x) => { hook = x.val(); renderChat(); });
+    db.ref("config/lastChatAt").on("value", (x) => { lastChatAt = x.val() || 0; renderChat(); });
+    setInterval(renderChat, 10000);
 
     db.ref("giveaways").orderByChild("createdAt").limitToLast(60).on("value", (s) => {
       all = s.val() || {};
@@ -120,66 +111,22 @@
     }));
   }
 
-  // ---------------- شات كيك ----------------
-  function setState(on, txt) {
-    wsOn = on;
+  // ---------------- حالة ربط الشات ----------------
+  function ago(ms) {
+    const t = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+    if (t < 60) return "ثواني";
+    if (t < 3600) return Math.floor(t / 60) + " دقيقة";
+    if (t < 86400) return Math.floor(t / 3600) + " ساعة";
+    return Math.floor(t / 86400) + " يوم";
+  }
+  function renderChat() {
     const dot = document.getElementById("dot"), st = document.getElementById("chatState");
-    if (dot) dot.classList.toggle("on", on);
-    if (st) st.textContent = txt;
-  }
-  async function saveChat() {
-    const id = val("crid").trim();
-    if (!/^\d+$/.test(id)) return App.toast("Chatroom ID لازم يكون أرقام");
-    chatroomId = id;
-    await db.ref("config/chatroomId").set(id);
-    wantChat = true; closeChat(); openChat();
-  }
-  function closeChat() { clearTimeout(wsTimer); if (ws) { ws.onclose = null; ws.close(); ws = null; } setState(false, "غير متصل"); }
-  // مفاتيح Pusher العامة المعروفة لكيك (نجرّبها بالتناوب إذا ما اشتغل الأول)
-  const PUSHER_KEYS = ["32cbd69e4b950bf97679", "eb1d5f283081a78b932c"];
-  const CLUSTERS = ["us2", "us3", "mt1", "eu", "ap1", "ap2", "ap3", "ap4", "sa1"];
-  const COMBOS = [];
-  PUSHER_KEYS.forEach((k) => CLUSTERS.forEach((c) => COMBOS.push([k, c])));
-  let keyIdx = 0, everUp = false, lastErr = "";
-  try { const s = localStorage.getItem("pusherCombo"); const i = COMBOS.findIndex((x) => x.join("|") === s); if (i >= 0) keyIdx = i; } catch (e) {}
-  function openChat() {
-    if (!chatroomId || ws) return;
-    const [key, cluster] = COMBOS[keyIdx % COMBOS.length];
-    setState(false, "جاري الاتصال... (" + cluster + " · " + ((keyIdx % COMBOS.length) + 1) + "/" + COMBOS.length + ")");
-    let opened = false;
-    ws = new WebSocket("wss://ws-" + cluster + ".pusher.com/app/" + key + "?protocol=7&client=js&version=8.4.0&flash=false");
-    ws.onopen = () => { opened = true; };
-    ws.onmessage = (e) => {
-      let m; try { m = JSON.parse(e.data); } catch (x) { return; }
-      if (m.event === "pusher:connection_established") ws.send(JSON.stringify({ event: "pusher:subscribe", data: { auth: "", channel: `chatrooms.${chatroomId}.v2` } }));
-      else if (m.event === "pusher_internal:subscription_succeeded") {
-        everUp = true; lastErr = ""; setState(true, "متصل بالشات ✓");
-        try { localStorage.setItem("pusherCombo", COMBOS[keyIdx % COMBOS.length].join("|")); } catch (e) {}
-      }
-      else if (m.event === "pusher:error") { lastErr = typeof m.data === "string" ? m.data : JSON.stringify(m.data); console.warn("pusher:error", lastErr); }
-      else if (m.event === "pusher:ping") ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
-      else if (m.event === "App\\Events\\ChatMessageEvent") { try { onChat(JSON.parse(m.data)); } catch (x) {} }
-    };
-    ws.onclose = (ev) => {
-      ws = null;
-      if (!everUp) keyIdx++;                       // ما اتصل أبداً: جرّب المفتاح الثاني
-      const why = lastErr ? " — " + lastErr : (opened ? " — كود " + ev.code : " — تعذّر فتح الاتصال (حاجب إعلانات أو شبكة؟)");
-      setState(false, "انقطع الاتصال" + why + " — إعادة المحاولة...");
-      if (wantChat) wsTimer = setTimeout(openChat, everUp ? 3000 : 700);
-    };
-    ws.onerror = () => { console.warn("WebSocket error"); };
-  }
-  function onChat(d) {
-    const text = String(d.content || "").trim().toLowerCase();
-    const sender = d.sender;
-    if (!text || !sender?.id) return;
-    Object.keys(all).forEach((gid) => {
-      const g = all[gid];
-      if (!isOpen(g) || g.keyword !== text) return;
-      const uid = "kick_" + sender.id;
-      if ((entries[gid] || {})[uid]) return;
-      db.ref(`entries/${gid}/${uid}`).transaction((cur) => cur ? undefined : { name: sender.username, source: "chat", at: SV.TIMESTAMP }).catch(() => {});
-    });
+    if (!dot || !st) return;
+    const ok = !!(hook && hook.ok);
+    dot.classList.toggle("on", ok);
+    st.textContent = !hook ? "غير مربوط — الستريمر لازم يضغط زر الربط"
+      : !hook.ok ? "آخر محاولة ربط فشلت — جرّب الزر من جديد"
+      : "مربوط ✓ (بواسطة " + hook.by + ")" + (lastChatAt ? " — آخر رسالة شات وصلت قبل " + ago(lastChatAt) : " — لسا ما وصلت أي رسالة");
   }
 
   // ---------------- السحب ----------------

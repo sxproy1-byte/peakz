@@ -57,8 +57,8 @@
   App.icon = (n) => ICONS[n] || "";
 
   const NAV = [
-    ["#", "🏠", "الرئيسية", "giveaways"],
-    ["index.html", "🎟️", "المسابقات", "giveaways"],
+    ["index.html", "🏠", "الرئيسية", "home"],
+    ["giveaways.html", "🎟️", "المسابقات", "giveaways"],
     ["bonus.html", "🎯", "البونص هانت", "bonus", true],
     ["tournaments.html", "⚔️", "البطولات", "tournaments", true]
   ];
@@ -66,12 +66,12 @@
   App.shell = function (active) {
     const nav = document.getElementById("nav");
     if (nav) {
-      nav.innerHTML = NAV.slice(1).map(([href, ico, label, key, soon]) =>
+      nav.innerHTML = NAV.map(([href, ico, label, key, soon]) =>
         `<a href="${href}" class="${key === active ? "active" : ""}"><span>${ico}</span>${label}${soon ? '<span class="soon">قريباً</span>' : ""}</a>`
       ).join("");
     }
     const b = document.querySelector(".brand");
-    if (b) b.innerHTML = `<span class="mark">${esc(C.siteName[0])}</span><span>${esc(C.siteName)}</span>`;
+    if (b) b.innerHTML = `<img class="mark" src="img/logo.png" alt=""><span>${esc(C.siteName)}</span>`;
     const f = document.getElementById("follow");
     if (f) { f.href = "https://kick.com/" + C.streamerSlug; f.target = "_blank"; f.rel = "noopener"; f.textContent = "تابع على كيك"; }
     renderUserBox();
