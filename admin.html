@@ -17,6 +17,20 @@
   <div class="top-end"><a class="follow" id="follow"></a><div class="row" id="userbox"></div></div>
 </div></header>
 <main class="page" id="root"><div class="empty">جاري التحميل...</div></main>
+<div class="overlay" id="uEdit">
+  <button class="btn ghost x" id="ueClose">إغلاق ✕</button>
+  <div class="edit-box">
+    <h2 id="ueTitle"></h2>
+    <div class="field"><label>يوزر ستيك</label><input id="ueStake" dir="ltr" maxlength="40" autocomplete="off"></div>
+    <div class="field"><label>عنوان USDT (BSC)</label><input id="ueWallet" dir="ltr" maxlength="42" autocomplete="off" spellcheck="false"></div>
+    <div class="msg" id="ueDiscord" style="text-align:start"></div>
+    <div class="row" style="justify-content:center">
+      <button class="btn primary" id="ueSave">حفظ التعديل</button>
+      <button class="btn danger" id="ueUnlink">فك ربط الديسكورد</button>
+    </div>
+    <p class="hint">المستخدم ما بيقدر يعدّل هالبيانات بنفسه. فك ربط الديسكورد بيلغي توثيقه ويسمحله يربط من جديد.</p>
+  </div>
+</div>
 <div class="overlay" id="draw">
   <button class="btn ghost x" id="drawClose">إغلاق ✕</button>
   <button class="btn ghost small" id="dSound" style="position:absolute;top:18px;inset-inline-end:18px">🔊 الصوت</button>

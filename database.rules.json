@@ -35,12 +35,13 @@
       ".read": "auth.token.admin === true",
       "$uid": {
         ".read": "auth.uid === $uid || auth.token.admin === true",
+        ".write": "auth.token.admin === true",
         "stake": {
-          ".write": "auth.uid === $uid",
+          ".write": "auth.uid === $uid && !data.exists()",
           ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_.-]{2,40}$/)"
         },
         "wallet": {
-          ".write": "auth.uid === $uid",
+          ".write": "auth.uid === $uid && !data.exists()",
           ".validate": "newData.isString() && newData.val().matches(/^0x[a-fA-F0-9]{40}$/)"
         },
         "updatedAt": {
@@ -52,7 +53,25 @@
     "verified": {
       ".read": "auth.token.admin === true",
       "$uid": {
-        ".read": "auth.uid === $uid || auth.token.admin === true"
+        ".read": "auth.uid === $uid || auth.token.admin === true",
+        ".write": "auth.token.admin === true"
+      }
+    },
+    "stakeIndex": {
+      "$k": {
+        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid)",
+        ".validate": "newData.isString()"
+      }
+    },
+    "walletIndex": {
+      "$k": {
+        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid)",
+        ".validate": "newData.isString()"
+      }
+    },
+    "discordLinks": {
+      "$id": {
+        ".write": "auth.token.admin === true"
       }
     }
   }

@@ -52,7 +52,7 @@
       <div class="panel"><h2>👥 المستخدمين <small id="uCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <div class="row" style="margin-bottom:12px"><input id="uSearch" placeholder="ابحث بالاسم / ستيك / ديسكورد..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(5,7,15,.5)">
           <button class="btn ghost small" id="uCsv">⬇️ تصدير CSV</button></div>
-        <div class="utable-wrap"><table class="utable"><thead><tr><th>كيك</th><th>الحالة</th><th>ديسكورد</th><th>ستيك</th><th>USDT (BSC)</th></tr></thead><tbody id="uBody"></tbody></table></div>
+        <div class="utable-wrap"><table class="utable"><thead><tr><th>كيك</th><th>الحالة</th><th>ديسكورد</th><th>ستيك</th><th>USDT (BSC)</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
         <p class="hint" style="text-align:start;margin-top:10px">العناوين مخفية افتراضياً عشان ما تظهر لو كنت عامل مشاركة شاشة بالبث.</p>
       </div>`;
 
@@ -145,9 +145,11 @@
     body.innerHTML = list.length ? list.map((r) => `<tr>
       <td>${esc(r.kick)}</td><td>${tag(r)}</td><td>${esc(r.discord) || "—"}</td><td dir="ltr">${esc(r.stake) || "—"}</td>
       <td dir="ltr">${r.wallet ? `<span class="wal">${shown.has(r.uid) ? esc(r.wallet) : mask(r.wallet)}</span>
-        <button class="btn ghost small" data-eye="${r.uid}">${shown.has(r.uid) ? "إخفاء" : "إظهار"}</button><button class="btn ghost small" data-copy="${esc(r.wallet)}">نسخ</button>` : "—"}</td></tr>`).join("")
-      : `<tr><td colspan="5" class="msg">لا يوجد نتائج</td></tr>`;
+        <button class="btn ghost small" data-eye="${r.uid}">${shown.has(r.uid) ? "إخفاء" : "إظهار"}</button><button class="btn ghost small" data-copy="${esc(r.wallet)}">نسخ</button>` : "—"}</td>
+      <td><button class="btn primary small" data-edit="${r.uid}">تعديل</button></td></tr>`).join("")
+      : `<tr><td colspan="6" class="msg">لا يوجد نتائج</td></tr>`;
     body.querySelectorAll("[data-eye]").forEach((b) => (b.onclick = () => { const k = b.dataset.eye; shown.has(k) ? shown.delete(k) : shown.add(k); renderUsers(); }));
+    body.querySelectorAll("[data-edit]").forEach((b) => (b.onclick = () => openEdit(b.dataset.edit)));
     body.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = () => navigator.clipboard.writeText(b.dataset.copy).then(() => App.toast("تم النسخ ✓"), () => App.toast("تعذّر النسخ"))));
   }
   function exportCsv() {
@@ -158,9 +160,9 @@
     a.href = URL.createObjectURL(new Blob(["\ufeff" + out.join("\n")], { type: "text/csv;charset=utf-8" }));
     a.download = "peakz-users.csv"; a.click(); URL.revokeObjectURL(a.href);
   }
-  async function adminApi(path) {
+  async function adminApi(path, method) {
     const t = await firebase.auth().currentUser.getIdToken();
-    const r = await fetch(C.workerUrl + path, { headers: { Authorization: "Bearer " + t } });
+    const r = await fetch(C.workerUrl + path, { method: method || "GET", headers: { Authorization: "Bearer " + t } });
     return r.json();
   }
 
@@ -184,6 +186,45 @@
 
   // ---------------- السحب ----------------
   const $ = (id) => document.getElementById(id);
+
+  // ---------------- تعديل بيانات مستخدم (الأدمن فقط) ----------------
+  const kOf = (v) => v.toLowerCase().replace(/\./g, ",");
+  let editUid = null;
+  function openEdit(uid) {
+    editUid = uid;
+    const u = users[uid] || {}, p = profiles[uid] || {}, d = p.discord;
+    $("ueTitle").textContent = "تعديل: " + (u.name || uid);
+    $("ueStake").value = p.stake || ""; $("ueWallet").value = p.wallet || "";
+    $("ueDiscord").textContent = d ? "ديسكورد مربوط: " + d.name + " (" + d.id + ")" : "ما في ديسكورد مربوط";
+    $("ueUnlink").style.display = d ? "" : "none";
+    $("uEdit").classList.add("show");
+  }
+  $("ueClose").onclick = () => $("uEdit").classList.remove("show");
+  $("ueSave").onclick = async () => {
+    const uid = editUid, old = profiles[uid] || {};
+    const stake = $("ueStake").value.trim(), wallet = $("ueWallet").value.trim();
+    if (stake && !/^[A-Za-z0-9_.-]{2,40}$/.test(stake)) return App.toast("يوزر ستيك غير صالح");
+    if (wallet && !/^0x[a-fA-F0-9]{40}$/.test(wallet)) return App.toast("عنوان المحفظة غير صالح");
+    const clash = (f, v) => v && Object.entries(profiles).some(([id, p]) => id !== uid && p[f] && p[f].toLowerCase() === v.toLowerCase());
+    if (clash("stake", stake)) return App.toast("يوزر ستيك هذا مستخدم بحساب ثاني");
+    if (clash("wallet", wallet)) return App.toast("هذا العنوان مستخدم بحساب ثاني");
+    const up = {};
+    if (old.stake) up["stakeIndex/" + kOf(old.stake)] = null;
+    if (old.wallet) up["walletIndex/" + kOf(old.wallet)] = null;
+    up["profiles/" + uid + "/stake"] = stake || null; up["profiles/" + uid + "/wallet"] = wallet || null;
+    if (stake) up["stakeIndex/" + kOf(stake)] = uid;
+    if (wallet) up["walletIndex/" + kOf(wallet)] = uid;
+    up["profiles/" + uid + "/updatedAt"] = SV.TIMESTAMP;
+    try { await db.ref().update(up); App.toast("تم الحفظ ✓"); $("uEdit").classList.remove("show"); }
+    catch (e) { console.error(e); App.toast("فشل الحفظ"); }
+  };
+  $("ueUnlink").onclick = async () => {
+    const uid = editUid, d = (profiles[uid] || {}).discord; if (!d) return;
+    if (!confirm("فك ربط الديسكورد لهذا المستخدم؟ رح يفقد التوثيق لين يربط من جديد.")) return;
+    try { await db.ref().update({ ["profiles/" + uid + "/discord"]: null, ["discordLinks/" + d.id]: null, ["verified/" + uid]: null }); App.toast("تم فك الربط ✓"); $("uEdit").classList.remove("show"); }
+    catch (e) { console.error(e); App.toast("فشل فك الربط"); }
+  };
+
   let dGid = null, winners = [], spinning = false;
 
   function openDraw(gid) {
@@ -221,18 +262,9 @@
     spinning = true; $("dStart").disabled = $("dMore").disabled = true;
     count = Math.min(count, pool.length);
     for (let i = 0; i < count; i++) {
-      // الاختيار قبل الأنيميشن، وبنتأكد إن الفائز لسا عنده رول التوثيق (وإلا بنستبعده وبنسحب غيره)
-      let pick = null;
-      while (pool.length && !pick) {
-        const c = Fair.pickWinners(pool, 1)[0];
-        pool = pool.filter((p) => p.uid !== c.uid);
-        let st;
-        try { st = (await adminApi("/discord/check?uid=" + encodeURIComponent(c.uid))).status; } catch (e) { st = "error"; }
-        if (st === "ok") pick = c;
-        else if (st === "error") { spinning = false; $("dStart").disabled = $("dMore").disabled = false; return App.toast("تعذّر التحقق من توثيق " + c.name + " — جرّب مرة ثانية"); }
-        else App.toast("تم استبعاد " + c.name + " (ما عنده رول التوثيق) وسحب غيره");
-      }
-      if (!pick) { App.toast("ما في مشاركين موثّقين متبقين"); break; }
+      // الاختيار قبل الأنيميشن (Fair.pickWinners)، والشريط بس يعرضه. المشاركين كلهم موثّقين أصلاً لأن الدخول مقفول على غير الموثّقين.
+      const pick = Fair.pickWinners(pool, 1)[0];
+      pool = pool.filter((p) => p.uid !== pick.uid);
       $("reveal").classList.remove("show");
       await Reel.spin($("case"), $("track"), names, pick.name);
       $("reveal").textContent = "🏆 " + pick.name; $("reveal").classList.add("show");
