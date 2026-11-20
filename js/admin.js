@@ -107,7 +107,11 @@
     root.querySelectorAll("[data-draw]").forEach((b) => (b.onclick = () => openDraw(b.dataset.draw)));
     root.querySelectorAll("[data-del]").forEach((b) => (b.onclick = async () => {
       if (!confirm("متأكد من الحذف؟")) return;
-      await db.ref("entries/" + b.dataset.del).remove(); await db.ref("giveaways/" + b.dataset.del).remove();
+      try {
+        await db.ref("giveaways/" + b.dataset.del).remove();
+        await db.ref("entries/" + b.dataset.del).remove();
+        App.toast("تم الحذف");
+      } catch (e) { console.error(e); App.toast("فشل الحذف — حدّث قواعد Firebase (الخطوة المشروحة)"); }
     }));
   }
 
