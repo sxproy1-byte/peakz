@@ -35,7 +35,7 @@
         if (pool.length > 1) { let g = 0; while ((n === prev || (Math.abs(i - W) === 1 && n === winner)) && g++ < 12) n = pool[Math.floor(Math.random() * pool.length)]; }
       }
       prev = n;
-      const c = document.createElement("div"); c.className = "cc " + (i === W ? "r5 target" : rar());
+      const c = document.createElement("div"); c.className = "cc " + rar() + (i === W ? " target" : "");
       const b = document.createElement("b"); b.textContent = n; c.appendChild(b); c.appendChild(document.createElement("i"));
       trackEl.appendChild(c);
     }
