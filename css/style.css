@@ -288,3 +288,4 @@ input,select{font-family:inherit;color:var(--text)}
 .mrow .ci{width:90px;min-width:0}
 .gm{display:block;font-size:11px;color:var(--gold);font-weight:400}
 .mrow3{display:grid;grid-template-columns:1fr 78px 78px;gap:6px;align-items:center;padding:6px 10px}.mrow3+.mrow3{border-top:1px solid var(--line)}.mrow3 .ci{width:78px;min-width:0}
+body:not(.ready) [data-login],body:not(.ready) #loginBtn{visibility:hidden}
