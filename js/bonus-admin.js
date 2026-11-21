@@ -20,7 +20,7 @@
   function start() {
     if (started) return; started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html" class="on">🎯 البونص هانت</a><span class="soon">⚔️ البطولات (قريباً)</span></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html" class="on">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a></div>
       <div class="panel"><h2>➕ هانت جديد</h2><div class="form">
         <div class="field"><label>العنوان</label><input id="cTitle" placeholder="بونص هانت الجمعة"></div>
         <div class="field"><label>العملة</label><input id="cCur" value="$" maxlength="4"></div>

@@ -27,7 +27,7 @@
     if (started) return;
     started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html" class="on">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><span class="soon">⚔️ البطولات (قريباً)</span></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html" class="on">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a></div>
 
       <div class="panel"><h2>🔌 ربط شات كيك</h2>
         <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px"><span class="dot" id="dot"></span> <span id="chatState">جاري الفحص...</span></p>

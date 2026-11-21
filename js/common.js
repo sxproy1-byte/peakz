@@ -65,7 +65,7 @@
     ["index.html", "🏠", "الرئيسية", "home"],
     ["giveaways.html", "🎟️", "المسابقات", "giveaways"],
     ["bonus.html", "🎯", "البونص هانت", "bonus"],
-    ["tournaments.html", "⚔️", "البطولات", "tournaments", true]
+    ["tournaments.html", "⚔️", "البطولات", "tournaments"]
   ];
 
   App.shell = function (active) {
