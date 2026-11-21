@@ -293,3 +293,6 @@ body:not(.ready) [data-login],body:not(.ready) #loginBtn{visibility:hidden}
 .ovl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ovl input{flex:1;min-width:240px;padding:8px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(5,7,15,.6);direction:ltr;font-size:13px}
 .tile b,.btable td,.gtop b{unicode-bidi:plaintext}
+/* English (LTR) */
+.btn.small#langBtn{min-width:44px;font-weight:700}
+body.en .brk{direction:ltr}

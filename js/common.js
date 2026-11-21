@@ -82,6 +82,15 @@
     if (b) b.innerHTML = `<img class="mark" src="img/logo.png" alt=""><span>${esc(C.siteName)}</span>`;
     const f = document.getElementById("follow");
     if (f) { f.href = "https://kick.com/" + C.streamerSlug; f.target = "_blank"; f.rel = "noopener"; f.textContent = "تابع على كيك"; }
+    const te = document.querySelector(".top-end");
+    if (te && window.I18N && I18N.enabled && !document.getElementById("langBtn")) {
+      const lb = document.createElement("button");
+      lb.id = "langBtn"; lb.className = "btn ghost small"; lb.type = "button"; lb.setAttribute("translate", "no");
+      const upd = () => { lb.textContent = I18N.lang === "en" ? "ع" : "EN"; lb.title = I18N.lang === "en" ? "العربية" : "English"; };
+      lb.onclick = () => I18N.set(I18N.lang === "en" ? "ar" : "en"); upd();
+      window.addEventListener("langchange", () => { upd(); renderUserBox(); });
+      te.insertBefore(lb, te.firstChild);
+    }
     renderUserBox();
   };
 
