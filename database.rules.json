@@ -93,6 +93,15 @@
           ".validate": "newData.hasChildren(['name','value','at']) && newData.child('value').isNumber() && newData.child('value').val() >= 0 && newData.child('value').val() <= 1000000000 && (newData.child('name').val() === auth.token.kickName || auth.token.admin === true)"
         }
       }
+    },
+    "tournaments": {
+      ".read": true,
+      ".indexOn": [
+        "createdAt"
+      ],
+      "$tid": {
+        ".write": "auth.token.admin === true"
+      }
     }
   }
 }

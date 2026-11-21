@@ -16,7 +16,9 @@
   <div class="top-end"><a class="follow" id="follow"></a><div class="row" id="userbox"></div></div>
 </div></header>
 <main class="page">
-  <section class="hero"><div><h1>⚔️ البطولات</h1><p>هذا القسم قيد البناء، المرحلة الثانية.</p></div></section>
+  <section class="hero"><div><h1>⚔️ <span>البطولات</span></h1><p>سجّل، والعب، وكمّل لين النهائي.</p></div>
+    <div class="row"><div class="tabs"><button class="on" data-tab="current">الحالية</button><button data-tab="past">السابقة</button></div><a class="btn ghost" id="adminLink" href="admin-tournaments.html" style="display:none">⚙️ إدارة</a></div></section>
+  <div id="list"></div>
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -24,6 +26,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="js/config.js"></script>
 <script src="js/common.js"></script>
-<script>App.shell("tournaments");</script>
+<script src="js/bracket-core.js"></script>
+<script src="js/tournaments.js"></script>
 </body>
 </html>
