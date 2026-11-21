@@ -137,7 +137,7 @@
     } else {
       const arr = Object.entries(g).sort((a, b) => (b[1].at || 0) - (a[1].at || 0));
       box.innerHTML = `<div class="tw"><table class="btable"><thead><tr><th>الاسم</th><th>التخمين</th><th>الوقت</th></tr></thead><tbody>` +
-        arr.map(([, x]) => `<tr><td>${esc(x.name)}</td><td>${M(x.value, h.currency)}</td><td>${x.at ? new Date(x.at).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" }) : ""}</td></tr>`).join("") + `</tbody></table></div>`;
+        arr.map(([, x]) => `<tr><td>${esc(x.name)}</td><td>${M(x.value, h.currency)}</td><td>${x.at ? new Date(x.at).toLocaleTimeString(window.I18N && I18N.lang === "en" ? "en-US" : "ar", { hour: "2-digit", minute: "2-digit" }) : ""}</td></tr>`).join("") + `</tbody></table></div>`;
     }
   }
 
