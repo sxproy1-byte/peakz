@@ -48,11 +48,27 @@
     return R;
   }
 
+  // المركز الثالث: أعلى نتيجة (x) بين الخاسرين بنصف النهائي
+  function third(rounds) {
+    if (rounds.length < 2) return null;
+    let best = null;
+    rounds[rounds.length - 2].forEach((m) => {
+      if (!m.w || m.b.bye || m.a.bye) return;
+      const l = m.w === "a" ? "b" : "a", sc = l === "a" ? m.sa : m.sb, pay = l === "a" ? m.pa : m.pb;
+      const c = { uid: m[l].uid, name: m[l].name, score: sc };
+      if (!best || sc > best.score || (sc === best.score && (pay || 0) > (best.pay || 0))) best = Object.assign(c, { pay: pay || 0 });
+    });
+    if (!best) return null;
+    return { uid: best.uid, name: best.name, score: best.score };
+  }
+
   function result(rounds) {
     const f = rounds[rounds.length - 1][0];
     if (!f.w) return null;
     const lose = f.w === "a" ? "b" : "a";
-    return { champion: { uid: f[f.w].uid, name: f[f.w].name }, runnerUp: { uid: f[lose].uid, name: f[lose].name } };
+    const out = { champion: { uid: f[f.w].uid, name: f[f.w].name }, runnerUp: { uid: f[lose].uid, name: f[lose].name } };
+    const t = third(rounds); if (t) out.third = t;
+    return out;
   }
   const roundName = (r, total) => { const left = total - r; return left === 1 ? "النهائي" : left === 2 ? "نصف النهائي" : left === 3 ? "ربع النهائي" : "الدور " + (r + 1); };
   return { build, setResult, clearResult, result, roundName, isP };

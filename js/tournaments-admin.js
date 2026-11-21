@@ -30,6 +30,7 @@
         <div class="field"><label>عملة</label><input id="cCur" value="$" maxlength="4"></div>
         <div class="field"><label>جائزة البطل</label><input id="cP1" placeholder="$200"></div>
         <div class="field"><label>جائزة الوصيف</label><input id="cP2" placeholder="$100"></div>
+        <div class="field"><label>جائزة المركز 3</label><input id="cP3" placeholder="$50"></div>
         <div class="field" style="grid-column:1/-1"><label>ملاحظة / القوانين (اختياري)</label><input id="cNote" placeholder="كل مباراة: سلوت وبونص واحد"></div>
         <div class="field"><label>&nbsp;</label><button class="btn primary" id="cGo" style="width:100%">إنشاء وفتح التسجيل</button></div></div></div>
       <div id="active"></div><div class="panel"><h2>📜 المنتهية</h2><div class="alist" id="done"></div></div>`;
@@ -54,8 +55,8 @@
     const title = v("cTitle") || "بطولة", max = Number(v("cMax")) || 16, key = (v("cKey") || C.defaultKeyword).toLowerCase(), min = Math.max(1, Number(v("cMin")) || 10);
     try {
       const g = await db.ref("giveaways").push({ title: "🏆 تسجيل: " + title, prize: "مقعد بالبطولة", keyword: key, winnersCount: max, status: "open", createdAt: SV.TIMESTAMP, endsAt: App.now() + min * 60000, tournament: true });
-      await db.ref("tournaments").push({ title, max, keyword: key, gid: g.key, cmp: "x", currency: v("cCur") || "$", prizes: [v("cP1"), v("cP2")], note: v("cNote"), status: "reg", createdAt: SV.TIMESTAMP });
-      ["cTitle", "cKey", "cP1", "cP2", "cNote"].forEach((id) => (document.getElementById(id).value = ""));
+      await db.ref("tournaments").push({ title, max, keyword: key, gid: g.key, cmp: "x", currency: v("cCur") || "$", prizes: [v("cP1"), v("cP2"), v("cP3")], note: v("cNote"), status: "reg", createdAt: SV.TIMESTAMP });
+      ["cTitle", "cKey", "cP1", "cP2", "cP3", "cNote"].forEach((id) => (document.getElementById(id).value = ""));
       App.toast("انفتح التسجيل بالبطولة ⚔️");
     } catch (e) { console.error(e); App.toast("فشل الإنشاء — تأكد من قواعد Firebase"); }
   }
@@ -109,7 +110,7 @@
     Object.entries(keep).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
     document.getElementById("done").innerHTML = fin.length ? fin.map((id) => {
       const t = ts[id], f = t.final || {};
-      return `<div class="aitem"><div class="info"><b>${esc(t.title)}</b><small>🏆 ${esc((f.champion || {}).name || "")} · 🥈 ${esc((f.runnerUp || {}).name || "")}</small></div>
+      return `<div class="aitem"><div class="info"><b>${esc(t.title)}</b><small>🏆 ${esc((f.champion || {}).name || "")} · 🥈 ${esc((f.runnerUp || {}).name || "")}${f.third ? " · 🥉 " + esc(f.third.name) : ""}</small></div>
         <button class="btn ghost small" data-act="reopen" data-tid="${id}">↩ تراجع</button><button class="btn danger small" data-act="delT" data-tid="${id}">حذف</button></div>`;
     }).join("") : `<div class="msg">لسا ما في بطولة منتهية.</div>`;
   }

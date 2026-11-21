@@ -55,9 +55,10 @@
   }
 
   function card(tid, t) {
-    const prizes = (t.prizes || []).filter(Boolean).map((p, i) => `${["🥇", "🥈"][i] || ""} ${esc(p)}`).join(" · ");
+    const prizes = (t.prizes || []).filter(Boolean).map((p, i) => `${["🥇", "🥈", "🥉"][i] || ""} ${esc(p)}`).join(" · ");
     const res = t.status === "ended" && t.final ? `<div class="podium" style="margin:12px 0"><div class="pod p1"><span class="pm">🏆</span><b>${esc(t.final.champion.name)}</b><small>البطل${t.prizes && t.prizes[0] ? " · " + esc(t.prizes[0]) : ""}</small></div>
-      <div class="pod"><span class="pm">🥈</span><b>${esc(t.final.runnerUp.name)}</b><small>الوصيف${t.prizes && t.prizes[1] ? " · " + esc(t.prizes[1]) : ""}</small></div></div>` : "";
+      <div class="pod"><span class="pm">🥈</span><b>${esc(t.final.runnerUp.name)}</b><small>الوصيف${t.prizes && t.prizes[1] ? " · " + esc(t.prizes[1]) : ""}</small></div>
+      ${t.final.third ? `<div class="pod"><span class="pm">🥉</span><b>${esc(t.final.third.name)}</b><small>المركز 3 · ${num(t.final.third.score)}x${t.prizes && t.prizes[2] ? " · " + esc(t.prizes[2]) : ""}</small></div>` : ""}</div>` : "";
     const how = t.cmp === "pay" ? "الفوز لصاحب أعلى ربح بالبونص" : "الفوز لصاحب أعلى x (الربح ÷ الرهان)";
     return `<section class="panel hunt"><div class="hh"><h3>${esc(t.title)} <span class="badge ${ST[t.status][1]}">${ST[t.status][0]}</span></h3><span class="hint">${t.max} لاعب</span></div>
       ${prizes ? `<div class="hint" style="margin-bottom:8px">الجوائز: ${prizes}</div>` : ""}<div class="hint" style="margin-bottom:8px">${how}</div>${t.note ? `<div class="msg" style="margin-bottom:10px">${esc(t.note)}</div>` : ""}
