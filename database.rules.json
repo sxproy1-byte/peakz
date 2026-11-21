@@ -73,6 +73,26 @@
       "$id": {
         ".write": "auth.token.admin === true"
       }
+    },
+    "hunts": {
+      ".read": true,
+      ".indexOn": [
+        "createdAt"
+      ],
+      "$hid": {
+        ".write": "auth.token.admin === true"
+      }
+    },
+    "huntGuesses": {
+      "$hid": {
+        ".read": "auth.token.admin === true || root.child('hunts').child($hid).child('phase').val() === 'ended'",
+        ".write": "auth.token.admin === true",
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.token.admin === true || (auth.uid === $uid && root.child('verified').child(auth.uid).child('ok').val() === true && root.child('hunts').child($hid).child('phase').val() === 'collecting' && root.child('hunts').child($hid).child('guessOpen').val() === true && (!root.child('hunts').child($hid).child('guessEndsAt').exists() || root.child('hunts').child($hid).child('guessEndsAt').val() > now))",
+          ".validate": "newData.hasChildren(['name','value','at']) && newData.child('value').isNumber() && newData.child('value').val() >= 0 && newData.child('value').val() <= 1000000000 && (newData.child('name').val() === auth.token.kickName || auth.token.admin === true)"
+        }
+      }
     }
   }
 }

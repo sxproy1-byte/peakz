@@ -16,7 +16,12 @@
   <div class="top-end"><a class="follow" id="follow"></a><div class="row" id="userbox"></div></div>
 </div></header>
 <main class="page">
-  <section class="hero"><div><h1>🎯 البونص هانت</h1><p>هذا القسم قيد البناء، المرحلة الثانية.</p></div></section>
+  <section class="hero">
+    <div><h1>🎯 البونص <em>هانت</em></h1><p>خمّن إجمالي الربح، والأقرب للرقم الحقيقي بيفوز.</p></div>
+    <div class="row"><a class="btn ghost" id="adminLink" href="admin-bonus.html" style="display:none">⚙️ إدارة البونص هانت</a>
+      <div class="tabs"><button class="on" data-tab="current">الحالي</button><button data-tab="past">السابقة</button></div></div>
+  </section>
+  <div id="list"></div>
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -24,6 +29,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="js/config.js"></script>
 <script src="js/common.js"></script>
-<script>App.shell("bonus");</script>
+<script src="js/hunt-core.js"></script>
+<script src="js/bonus.js"></script>
 </body>
 </html>
