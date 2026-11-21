@@ -3,50 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PEAKZ — Overlay</title>
+<title>PEAKZ — Giveaway Overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  /* خلفية شفافة لـ OBS */
-  :root{--b1:#2f6bff;--b2:#22d3ee;--gold:#ffd36e;--muted:#9fb0d6}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:transparent!important;font-family:"Readex Pro",system-ui,sans-serif;color:#eef3ff;overflow:hidden}
-  .wrap{padding:14px;display:inline-block;width:100%;max-width:560px}
-  .card{position:relative;border-radius:26px;padding:20px 22px;border:1px solid rgba(120,160,255,.38);
-    background:linear-gradient(160deg,rgba(14,26,66,.92),rgba(6,10,26,.94));box-shadow:0 14px 50px rgba(0,0,0,.5),0 0 44px rgba(47,107,255,.35);overflow:hidden;
-    animation:in .5s ease both}
-  .card::before{content:"";position:absolute;width:300px;height:300px;inset-inline-start:-110px;top:-150px;border-radius:50%;background:radial-gradient(circle,rgba(47,107,255,.4),transparent 65%)}
-  .card>*{position:relative}
-  @keyframes in{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
-  .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-  .top img{width:36px;height:36px;border-radius:11px;box-shadow:0 0 16px rgba(47,107,255,.6)}
-  .tag{font-size:13px;font-weight:600;color:#9fd0ff;display:flex;align-items:center;gap:7px}
-  .dot{width:9px;height:9px;border-radius:50%;background:#34f5b0;box-shadow:0 0 10px #34f5b0;animation:p 1.4s infinite}
-  .dot.wait{background:var(--gold);box-shadow:0 0 10px var(--gold)}
-  @keyframes p{50%{opacity:.35}}
-  h1{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:4px;word-break:break-word}
-  .prize{color:var(--gold);font-size:17px;font-weight:600;margin-bottom:14px}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .st{background:rgba(255,255,255,.06);border:1px solid rgba(120,160,255,.2);border-radius:16px;padding:10px 6px;text-align:center}
-  .st b{display:block;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
-  .st small{color:var(--muted);font-size:12px}
-  .st.time b{color:#6aa0ff}
-  .kw{margin-top:14px;text-align:center;font-size:15px;color:var(--muted)}
-  .kw span{display:inline-block;margin-inline-start:6px;padding:3px 14px;border-radius:999px;color:#fff;font-weight:700;letter-spacing:.5px;
-    background:linear-gradient(135deg,var(--b1),var(--b2));box-shadow:0 4px 18px rgba(47,107,255,.5)}
-  .none{text-align:center;padding:10px 0}
-  .none .ic{font-size:34px;margin-bottom:6px}
-  .none b{font-size:22px}
-  .none small{display:block;color:var(--muted);margin-top:6px}
-  .pager{display:flex;gap:6px;justify-content:center;margin-top:12px}
-  .pager i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25)}
-  .pager i.on{background:var(--b2)}
-</style>
+<link rel="stylesheet" href="css/ov.css">
 </head>
 <body>
-<div class="wrap"><div class="card" id="card"></div></div>
+<div id="fit"><div class="card" id="card"></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="js/config.js"></script>
+<script src="js/ov-fit.js"></script>
 <script src="js/overlay.js"></script>
 </body>
 </html>

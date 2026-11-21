@@ -101,5 +101,16 @@
     document.getElementById("logoutBtn").onclick = App.logout;
   }
 
+  // لوحة رابط أوفرلاي OBS مع زر نسخ (تُستعمل بصفحات الأدمن)
+  App.overlayPanel = (file, title, hint) => {
+    const url = new URL(file, location.href).href;
+    return `<div class="panel"><h2>📺 ${esc(title)} — أوفرلاي OBS</h2><div class="ovl"><input readonly value="${esc(url)}" onclick="this.select()"><button class="btn primary small" data-copyurl="${esc(url)}">نسخ الرابط</button><a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener">معاينة</a></div><div class="hint" style="margin-top:8px">${hint}</div></div>`;
+  };
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-copyurl]"); if (!b) return;
+    const u = b.dataset.copyurl;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => App.toast("تم نسخ الرابط ✓"), () => { const i = b.parentNode.querySelector("input"); i.select(); document.execCommand("copy"); App.toast("تم نسخ الرابط ✓"); });
+  });
+
   consumeToken();
 })();

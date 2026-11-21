@@ -1,12 +1,10 @@
 // أوفرلاي OBS: يعرض المسابقة الجارية (الاسم، الجائزة، عدد الفائزين، الوقت المتبقي، عدد المشاركين)
-// الرابط بـ OBS (Browser Source):  .../overlay.html      لتكبيره:  overlay.html?scale=1.4
+// الرابط بـ OBS (Browser Source):  .../overlay.html   (مصمّم 440×320 ويتكيّف مع حجم المصدر)
 (function () {
   const C = window.CONFIG;
   firebase.initializeApp(C.firebase);
   const db = firebase.database();
   const card = document.getElementById("card");
-  const q = new URLSearchParams(location.search);
-  const sc = parseFloat(q.get("scale")); if (sc > 0) document.body.style.zoom = sc;
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let offset = 0, all = {}, counts = {}, refs = {}, idx = 0, lastKey = "";

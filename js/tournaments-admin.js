@@ -22,6 +22,7 @@
   function start() {
     if (started) return; started = true;
     root.innerHTML = `<h1 class="plain">لوحة التحكم</h1>${tabs}
+      ${App.overlayPanel("overlay-tournament.html", "البطولات", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة). بيعرض آخر بطولة شغّالة: التسجيل، القرعة، المباراة الحالية والنتائج، ثم البطل.")}
       <div class="panel"><h2>➕ بطولة جديدة</h2><div class="form">
         <div class="field"><label>العنوان</label><input id="cTitle" placeholder="بطولة السلوتات"></div>
         <div class="field"><label>عدد اللاعبين</label><select id="cMax"><option>8</option><option selected>16</option><option>32</option></select></div>

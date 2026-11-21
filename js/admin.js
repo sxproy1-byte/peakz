@@ -29,6 +29,7 @@
     root.innerHTML = `
       <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html" class="on">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a></div>
 
+      ${App.overlayPanel("overlay.html", "المسابقات", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة، بيتكيّف تلقائياً). بيعرض المسابقة الجارية (الاسم، الجائزة، الفائزين، الوقت، المشاركين) أو \"لا يوجد مسابقات نشطة\".")}
       <div class="panel"><h2>🔌 ربط شات كيك</h2>
         <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px"><span class="dot" id="dot"></span> <span id="chatState">جاري الفحص...</span></p>
         <div class="row"><button class="btn primary" id="crConnect">ربط الشات (للستريمر)</button></div>

@@ -21,6 +21,7 @@
     if (started) return; started = true;
     root.innerHTML = `
       <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html" class="on">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a></div>
+      ${App.overlayPanel("overlay-bonus.html", "البونص هانت", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة). بيعرض آخر هانت شغّال تلقائياً: الرصيد، البريك إيفن، قائمة البونصات مع الملاحظات.")}
       <div class="panel"><h2>➕ هانت جديد</h2><div class="form">
         <div class="field"><label>العنوان</label><input id="cTitle" placeholder="بونص هانت الجمعة"></div>
         <div class="field"><label>العملة</label><input id="cCur" value="$" maxlength="4"></div>
@@ -29,7 +30,7 @@
         <div class="field"><label>جائزة المركز 2</label><input id="cP2" placeholder="$50"></div>
         <div class="field"><label>جائزة المركز 3</label><input id="cP3" placeholder="$25"></div>
         <div class="field"><label>&nbsp;</label><button class="btn primary" id="cGo" style="width:100%">إنشاء</button></div></div></div>
-      <div id="active"></div>
+      <datalist id="notes"><option value="سوبر"><option value="إيبيك"><option value="ميغا"><option value="3 سكاتر"><option value="4 سكاتر"><option value="5 سكاتر"><option value="6 سكاتر"></datalist><div id="active"></div>
       <div class="panel"><h2>📜 المنتهية</h2><div class="alist" id="done"></div></div>`;
     document.getElementById("cGo").onclick = create;
     root.addEventListener("click", onClick);
@@ -87,6 +88,7 @@
       return `<tr class="${b.id === S.nextId && h.phase === "opening" ? "next" : ""}"><td>${i + 1}</td>
         <td><input class="ci" data-fld="slot" data-hid="${hid}" data-bid="${b.id}" value="${esc(b.slot)}" maxlength="60"></td>
         <td><input class="ci n" type="number" min="0" step="any" data-fld="bet" data-hid="${hid}" data-bid="${b.id}" value="${b.bet}"></td>
+        <td style="white-space:nowrap"><input class="ci" list="notes" data-fld="note" data-hid="${hid}" data-bid="${b.id}" value="${esc(b.note)}" maxlength="30" style="min-width:110px;width:130px" placeholder="—"> <select class="ci" data-fld="nc" data-hid="${hid}" data-bid="${b.id}" style="width:62px;min-width:0;padding:7px 4px">${["g","p","k","r","b"].map((c) => `<option value="${c}" ${b.nc === c ? "selected" : ""}>${{g:"🟡",p:"🟣",k:"🟢",r:"🔴",b:"🔵"}[c]}</option>`).join("")}</select></td>
         <td><input class="ci n" type="number" min="0" step="any" data-fld="payout" data-hid="${hid}" data-bid="${b.id}" value="${b.payout === null ? "" : b.payout}" placeholder="${b.id === S.nextId && h.phase === "opening" ? "اكتب الربح ◀" : "—"}"></td>
         <td>${X(x)}</td><td><button class="btn danger small" data-act="delBonus" data-hid="${hid}" data-bid="${b.id}">✕</button></td></tr>`;
     }).join("");
@@ -95,13 +97,15 @@
         <span>${h.phase === "collecting" ? `التخمين: ${open ? '<span class="badge open">مفتوح</span>' + timer : '<span class="badge">مقفول</span>'}` : ""}</span></div>
       <div class="tiles"><div class="tile"><small>البونصات</small><b>${S.openedCount}/${S.count}</b></div><div class="tile"><small>إجمالي الربح</small><b>${M(S.totalWin, h.currency)}</b></div>
         <div class="tile"><small>متوسط x</small><b>${X(S.avgX)}</b></div>
-        ${h.startBalance != null ? `<div class="tile"><small>للتعادل</small><b>${S.beX === null ? "—" : X(S.beX)}</b></div><div class="tile"><small>الربح/الخسارة</small><b class="${S.profit >= 0 ? "up" : "down"}">${M(S.profit, h.currency)}</b></div>` : ""}</div>
+        ${h.startBalance != null ? `<div class="tile"><small>للتعادل</small><b>${S.beX === null ? "—" : X(S.beX)}</b></div>${S.openedCount ? `<div class="tile"><small>الربح/الخسارة</small><b class="${S.profit >= 0 ? "up" : "down"}">${M(S.profit, h.currency)}</b></div>` : ""}` : ""}</div>
       <div class="row" style="margin:12px 0">${ctl}<button class="btn danger small" data-act="delHunt" data-hid="${hid}" style="margin-inline-start:auto">حذف الهانت</button></div>
       <h4 class="sub">البونصات</h4>
       <div class="row" style="margin-bottom:10px"><input class="ci" id="bs-${hid}" data-keep="1" placeholder="اسم السلوت" style="flex:1;min-width:160px" maxlength="60">
         <input class="ci n" id="bb-${hid}" data-keep="1" type="number" min="0" step="any" placeholder="الرهان" style="width:110px">
+        <input class="ci" id="bn-${hid}" data-keep="1" list="notes" placeholder="ملاحظة (اختياري): سوبر، إيبيك، 4 سكاتر..." style="flex:1;min-width:150px" maxlength="30">
+        <select class="ci" id="bc-${hid}" data-keep="1" style="width:110px;min-width:0"><option value="g">🟡 ذهبي</option><option value="p">🟣 بنفسجي</option><option value="k">🟢 أخضر</option><option value="r">🔴 أحمر</option><option value="b">🔵 أزرق</option></select>
         <button class="btn primary small" data-act="addBonus" data-hid="${hid}">+ أضف بونص</button></div>
-      ${S.count ? `<div class="tw"><table class="btable"><thead><tr><th>#</th><th>السلوت</th><th>الرهان</th><th>الربح (فتحه)</th><th>x</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="msg">أضف أول بونص.</div>`}
+      ${S.count ? `<div class="tw"><table class="btable"><thead><tr><th>#</th><th>السلوت</th><th>الرهان</th><th>ملاحظة</th><th>الربح (فتحه)</th><th>x</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="msg">أضف أول بونص.</div>`}
       <h4 class="sub">التخمينات <small id="gc-${hid}" style="color:var(--muted);font-weight:400"></small></h4>
       <div id="gt-${hid}"></div></div>`;
   }
@@ -165,7 +169,10 @@
       else if (act === "addBonus") {
         const slot = document.getElementById("bs-" + hid).value.trim(), bet = Number(document.getElementById("bb-" + hid).value);
         if (!slot || !isFinite(bet) || bet < 0 || document.getElementById("bb-" + hid).value === "") return App.toast("اكتب اسم السلوت والرهان");
-        await ref(hid, "bonuses").push({ slot, bet });
+        const note = document.getElementById("bn-" + hid).value.trim(), nc = document.getElementById("bc-" + hid).value, nb = { slot, bet };
+        if (note) { nb.note = note; nb.nc = nc; }
+        await ref(hid, "bonuses").push(nb);
+        delete keep["bn-" + hid]; document.getElementById("bn-" + hid).value = "";
         delete keep["bs-" + hid]; delete keep["bb-" + hid]; document.getElementById("bs-" + hid).value = ""; document.getElementById("bb-" + hid).value = ""; document.getElementById("bs-" + hid).focus();
       } else if (act === "delBonus") { if (confirm("حذف هذا البونص؟")) await ref(hid, "bonuses/" + b.dataset.bid).remove(); }
     } catch (err) { fail(err); }
@@ -175,7 +182,9 @@
     const el = e.target, f = el.dataset && el.dataset.fld; if (!f) return;
     const path = "bonuses/" + el.dataset.bid + "/" + f, v = el.value.trim();
     try {
-      if (f === "slot") { if (!v) return renderAll(); await ref(el.dataset.hid, path).set(v); }
+      if (f === "note") { if (v) await ref(el.dataset.hid, path).set(v); else await ref(el.dataset.hid, path).remove(); }
+      else if (f === "nc") await ref(el.dataset.hid, path).set(el.value);
+      else if (f === "slot") { if (!v) return renderAll(); await ref(el.dataset.hid, path).set(v); }
       else if (f === "bet") { const n = Number(v); if (v === "" || !isFinite(n) || n < 0) return renderAll(); await ref(el.dataset.hid, path).set(n); }
       else { const n = Number(v); if (v === "") await ref(el.dataset.hid, path).remove(); else if (isFinite(n) && n >= 0) await ref(el.dataset.hid, path).set(n); else renderAll(); }
     } catch (err) { fail(err); }

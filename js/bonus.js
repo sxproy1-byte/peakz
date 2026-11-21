@@ -58,7 +58,7 @@
       S.list.map((b, i) => {
         const opened = b.payout !== null, x = opened && b.bet > 0 ? b.payout / b.bet : null;
         const cls = (b.id === S.nextId && h.phase === "opening" ? "next " : "") + (x >= 100 ? "hot" : x >= 25 ? "good" : "");
-        return `<tr class="${cls}"><td>${i + 1}</td><td>${esc(b.slot)}</td><td>${M(b.bet, h.currency)}</td><td>${opened ? M(b.payout, h.currency) : "—"}</td><td>${opened ? X(x) : b.id === S.nextId && h.phase === "opening" ? "التالي ▶" : "—"}</td></tr>`;
+        return `<tr class="${cls}"><td>${i + 1}</td><td>${esc(b.slot)}${b.note ? ` <span class="nchip" style="${Hunt.noteStyle(b.nc)}">${esc(b.note)}</span>` : ""}</td><td>${M(b.bet, h.currency)}</td><td>${opened ? M(b.payout, h.currency) : "—"}</td><td>${opened ? X(x) : b.id === S.nextId && h.phase === "opening" ? "التالي ▶" : "—"}</td></tr>`;
       }).join("") + `</tbody></table></div>`;
   }
 

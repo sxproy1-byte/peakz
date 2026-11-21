@@ -289,3 +289,7 @@ input,select{font-family:inherit;color:var(--text)}
 .gm{display:block;font-size:11px;color:var(--gold);font-weight:400}
 .mrow3{display:grid;grid-template-columns:1fr 78px 78px;gap:6px;align-items:center;padding:6px 10px}.mrow3+.mrow3{border-top:1px solid var(--line)}.mrow3 .ci{width:78px;min-width:0}
 body:not(.ready) [data-login],body:not(.ready) #loginBtn{visibility:hidden}
+.nchip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;font-weight:700;margin-inline-start:6px;vertical-align:middle;white-space:nowrap}
+.ovl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ovl input{flex:1;min-width:240px;padding:8px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(5,7,15,.6);direction:ltr;font-size:13px}
+.tile b,.btable td,.gtop b{unicode-bidi:plaintext}
