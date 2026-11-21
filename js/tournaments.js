@@ -40,7 +40,8 @@
 
   function regBox(tid, t) {
     const g = gv[t.gid], E = ent[t.gid] || {}, n = Object.keys(E).length;
-    if (!g) return `<div class="msg">جاري التحميل...</div>`;
+    if (g === undefined) return `<div class="msg">جاري التحميل...</div>`;
+    if (!g) return `<div class="msg">التسجيل غير متاح حالياً.</div>`;
     const open = g.status === "open" && g.endsAt > App.now(), mine = App.user && E[App.user.uid];
     let act;
     if (!open) act = `<span class="hint">انتهى وقت التسجيل — بانتظار القرعة</span>`;

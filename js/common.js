@@ -43,15 +43,18 @@
   auth.onAuthStateChanged(async (u) => {
     if (verRef) { verRef.off(); verRef = null; }
     App.verified = null;
-    if (!u) { App.user = null; }
+    if (!u) { App.user = null; try { localStorage.removeItem("lastUser"); } catch (e) {} }
     else {
-      const res = await u.getIdTokenResult(true);
+      let res;
+      try { res = await u.getIdTokenResult(true); } catch (e) { try { res = await u.getIdTokenResult(); } catch (e2) { res = { claims: {} }; } }   // لو انقطع النت ما نعلّق الواجهة
       let avatar = ""; try { avatar = localStorage.getItem("avatar") || ""; } catch (e) {}
       App.user = { uid: u.uid, name: res.claims.kickName || "user", admin: res.claims.admin === true, avatar };
+      try { localStorage.setItem("lastUser", JSON.stringify({ name: App.user.name, admin: App.user.admin, avatar })); } catch (e) {}
       verRef = db.ref("verified/" + u.uid + "/ok");
       verRef.on("value", (x) => { App.verified = x.val() === true; App.listeners.forEach((fn) => fn(App.user)); renderUserBox(); }, () => {});
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
     }
+    App.ready = true; document.body.classList.add("ready");
     renderUserBox();
     App.listeners.forEach((fn) => fn(App.user));
   });
@@ -85,11 +88,15 @@
   function renderUserBox() {
     const box = document.getElementById("userbox");
     if (!box) return;
-    const u = App.user;
+    let u = App.user;
+    if (!App.ready) {                                    // قبل ما يتأكد Firebase: نعرض آخر مستخدم محفوظ (أو لا شيء) بدل زر تسجيل الدخول
+      try { u = JSON.parse(localStorage.getItem("lastUser") || "null"); } catch (e) { u = null; }
+      if (!u) { box.innerHTML = ""; return; }
+    }
     if (!u) { box.innerHTML = `<button class="btn primary" id="loginBtn">تسجيل الدخول بكيك</button>`; document.getElementById("loginBtn").onclick = () => App.login(location.pathname.split("/").pop() || ""); return; }
     const av = u.avatar ? `<img src="${esc(u.avatar)}" alt="">` : `<div class="av">${esc(u.name[0].toUpperCase())}</div>`;
     box.innerHTML = `${u.admin ? '<a class="btn ghost small" href="admin.html">لوحة التحكم</a>' : ""}
-      <a class="userchip" href="profile.html" title="ملفي الشخصي">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${App.verified ? "موثّق ✅" : "غير موثّق ⚠️"}</small></div></a>
+      <a class="userchip" href="profile.html" title="ملفي الشخصي">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${App.ready ? (App.verified ? "موثّق ✅" : "غير موثّق ⚠️") : ""}</small></div></a>
       <button class="btn ghost small" id="logoutBtn">خروج</button>`;
     document.getElementById("logoutBtn").onclick = App.logout;
   }
