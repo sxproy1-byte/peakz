@@ -42,3 +42,6 @@ h1{font-size:21px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hi
 .pdm{display:flex;flex-direction:column;gap:8px;margin:auto 0}.pdm div{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(120,160,255,.2);font-size:16px;font-weight:600}
 .pdm div:first-child{border-color:rgba(255,211,110,.6);background:rgba(255,211,110,.1)}.pdm small{margin-inline-start:auto;color:var(--muted);font-size:11px;font-weight:400}
 .st b,.row .bt,.row .x,.glance b{direction:ltr;unicode-bidi:isolate}
+/* سلوت كول */
+.now{padding:9px 12px;border-radius:14px;border:1px solid rgba(255,211,110,.6);background:rgba(255,211,110,.1);display:flex;flex-direction:column;gap:1px}
+.now small{color:var(--muted);font-size:11px}.now b{font-size:21px;font-weight:700;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.now em{font-style:normal;color:#cfe0ff;font-size:12.5px}
