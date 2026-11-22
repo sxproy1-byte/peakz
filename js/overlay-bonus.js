@@ -36,7 +36,7 @@
       const rows = S.list.map((b, i) => {
         const x = b.payout !== null && b.bet > 0 ? b.payout / b.bet : null;
         const cls = b.id === S.nextId && opening ? "nx" : x !== null && x >= 100 ? "ht" : x !== null && x >= 25 ? "gd" : "";
-        const res = b.payout !== null ? X(x) : b.id === S.nextId && opening ? "◀" : "";
+        const res = b.payout !== null ? M(b.payout, cur) : b.id === S.nextId && opening ? "◀" : "";
         return `<div class="row ${cls}" ${b.id === S.nextId && opening ? 'id="nxt"' : ""}><span class="n">${i + 1}</span><span class="s">${esc(b.slot)}${b.note ? `<span class="nchip" style="${Hunt.noteStyle(b.nc)}">${esc(b.note)}</span>` : ""}</span><span class="bt">${M(b.bet, cur)}</span><span class="x">${res}</span></div>`;
       }).join("");
       const T = (cls, label, val) => `<div class="st ${cls}"><small>${label}</small><b>${val}</b></div>`;

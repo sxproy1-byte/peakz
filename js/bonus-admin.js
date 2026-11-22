@@ -70,7 +70,7 @@
   function panel(hid, h) {
     const S = Hunt.stats(h.bonuses, h.startBalance), open = guessOpen(h);
     const timer = open && h.guessEndsAt ? ` <b class="gtimer" data-end="${h.guessEndsAt}">${fmt(h.guessEndsAt - App.now())}</b>` : "";
-    let ctl = "";
+    let ctl = h.phase !== "ended" ? `<button class="btn ghost small" data-act="manualGuess" data-hid="${hid}">➕ تخمين يدوي</button>` : "";
     if (h.phase === "collecting") {
       ctl += open
         ? `<button class="btn danger small" data-act="closeGuess" data-hid="${hid}">🔒 قفل التخمين</button>
@@ -158,6 +158,12 @@
       if (act === "openGuess") {
         const m = Number(document.getElementById("gm-" + hid).value);
         await ref(hid).update({ guessOpen: true, guessEndsAt: m > 0 ? App.now() + m * 60000 : null }); delete keep["gm-" + hid];
+      } else if (act === "manualGuess") {
+        const name = (prompt("اسم المخمّن:") || "").trim().slice(0, 40); if (!name) return;
+        const v = Number((prompt("تخمين " + name + " (إجمالي الربح):") || "").replace(/,/g, ""));
+        if (!(v >= 0) || !isFinite(v) || String(v) === "") return App.toast("اكتب رقم صحيح");
+        await db.ref("huntGuesses/" + hid + "/" + App.manualKey(name)).set({ name, value: v, at: SV.TIMESTAMP, source: "manual" });
+        App.toast("تمت إضافة تخمين " + name + " ✓");
       } else if (act === "closeGuess") await ref(hid).update({ guessOpen: false });
       else if (act === "extend") { const m = Number(document.getElementById("ex-" + hid).value); if (!(m > 0)) return App.toast("اكتب عدد الدقائق"); delete keep["ex-" + hid]; await ref(hid).update({ guessOpen: true, guessEndsAt: Math.max(App.now(), h.guessEndsAt || 0) + m * 60000 }); }
       else if (act === "startOpening") {

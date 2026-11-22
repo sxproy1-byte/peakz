@@ -88,6 +88,7 @@
       ctl = `<input id="ex-${tid}" data-keep="1" type="number" min="1" step="any" placeholder="دقائق" style="width:90px;padding:7px 10px;border-radius:11px;border:1px solid var(--line);background:rgba(5,7,15,.6)">
         <button class="btn ghost small" data-act="extend" data-tid="${tid}">⏱ ${open ? "تمديد" : "إعادة فتح"} التسجيل</button>
         ${open ? `<button class="btn danger small" data-act="endReg" data-tid="${tid}">🔒 إنهاء التسجيل الآن</button>` : ""}
+        <button class="btn ghost small" data-act="manual" data-tid="${tid}">➕ لاعب يدوي</button>
         <button class="btn primary small" data-act="draw" data-tid="${tid}" ${open || n < 2 ? "disabled" : ""}>🎲 سحب اللاعبين</button>`;
     } else if (t.status === "seeded") {
       const ps = t.bracket[0].flatMap((m) => [m.a, m.b]).filter(Bracket.isP);
@@ -207,6 +208,7 @@
         const m = R[+b.dataset.r][+b.dataset.i]; ["ba", "bb", "pa", "pb"].forEach((k) => delete m[k]);
         await ref(tid).update({ bracket: R });
       } else if (a === "reopen") { if (confirm("التراجع عن إنهاء البطولة؟")) await ref(tid).update({ status: "live", final: null, endedAt: null }); }
+      else if (a === "manual") await App.addManualEntry(gid);
       else if (a === "delT") { if (confirm("حذف البطولة نهائياً؟ (المسابقة المرتبطة بالتسجيل تنحذف كمان)")) { await ref(tid).remove(); await db.ref("giveaways/" + gid).remove(); await db.ref("entries/" + gid).remove(); } }
     } catch (err) { console.error(err); App.toast("فشل — تأكد من الصلاحيات"); }
   }

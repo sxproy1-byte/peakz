@@ -14,8 +14,8 @@
     denied: "ألغيت الربط", err: "صار خطأ بالربط، جرّب مرة ثانية",
   };
   // رجوع من ديسكورد
-  const dc = new URLSearchParams(location.search).get("dc");
-  if (dc) { history.replaceState(null, "", location.pathname); setTimeout(() => App.toast(MSG[dc] || MSG.err), 600); }
+  const qs = new URLSearchParams(location.search), dc = qs.get("dc"), who = qs.get("who");
+  if (dc) { history.replaceState(null, "", location.pathname); setTimeout(() => App.toast((MSG[dc] || MSG.err) + (dc === "dup" && who ? " (" + who + ")" : "")), 600); }
 
   App.onUser((u) => {
     if (!u) {

@@ -107,6 +107,7 @@
       const t = open ? `⏱ ${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}` : "انتهى الوقت";
       return `<div class="aitem"><div class="info"><b>${esc(g.title)}</b><small>${esc(g.prize || "")} · كلمة: ${esc(g.keyword)} · ${t} · ${n} مشارك · ${g.winnersCount} فائز</small></div>
         ${open ? `<button class="btn ghost small" data-add="${id}">+5 دقائق</button><button class="btn ghost small" data-end="${id}">إنهاء الدخول الآن</button>` : ""}
+        <button class="btn ghost small" data-man="${id}">➕ مشارك</button>
         <button class="btn primary small" data-draw="${id}" ${open ? "disabled title='أنهِ الدخول أولاً'" : ""}>🎲 سحب</button>
         <button class="btn danger small" data-del="${id}">حذف</button></div>`;
     }).join("") : `<div class="msg">ما في مسابقات جارية.</div>`;
@@ -118,6 +119,7 @@
 
     root.querySelectorAll("[data-add]").forEach((b) => (b.onclick = () => db.ref("giveaways/" + b.dataset.add + "/endsAt").set(all[b.dataset.add].endsAt + 300000)));
     root.querySelectorAll("[data-end]").forEach((b) => (b.onclick = () => db.ref("giveaways/" + b.dataset.end + "/endsAt").set(App.now())));
+    root.querySelectorAll("[data-man]").forEach((b) => (b.onclick = () => App.addManualEntry(b.dataset.man).catch(() => App.toast("فشل — تأكد من الصلاحيات"))));
     root.querySelectorAll("[data-draw]").forEach((b) => (b.onclick = () => openDraw(b.dataset.draw)));
     root.querySelectorAll("[data-del]").forEach((b) => (b.onclick = async () => {
       if (!confirm("متأكد من الحذف؟")) return;

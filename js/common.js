@@ -111,6 +111,14 @@
   }
 
   // لوحة رابط أوفرلاي OBS مع زر نسخ (تُستعمل بصفحات الأدمن)
+  App.manualKey = (name) => "manual_" + (String(name).trim().toLowerCase().replace(/[^a-z0-9\u0600-\u06FF_-]+/g, "") || Math.random().toString(36).slice(2, 8));
+  App.addManualEntry = async (gid) => {
+    const name = (prompt("اسم المشارك (اسم كيك):") || "").trim().slice(0, 40); if (!name) return;
+    const key = App.manualKey(name), ref = db.ref("entries/" + gid + "/" + key);
+    if ((await ref.once("value")).exists()) return App.toast("هذا الاسم مضاف أصلاً");
+    await ref.set({ name, source: "manual", at: firebase.database.ServerValue.TIMESTAMP });
+    App.toast("تمت إضافة " + name + " ✓");
+  };
   App.overlayPanel = (file, title, hint) => {
     const url = new URL(file, location.href).href;
     return `<div class="panel"><h2>📺 ${esc(title)} — أوفرلاي OBS</h2><div class="ovl"><input readonly value="${esc(url)}" onclick="this.select()"><button class="btn primary small" data-copyurl="${esc(url)}">نسخ الرابط</button><a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener">معاينة</a></div><div class="hint" style="margin-top:8px">${hint}</div></div>`;
