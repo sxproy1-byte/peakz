@@ -61,13 +61,39 @@
   }
   async function trackDevice(u) {
     try {
-      if (sessionStorage.getItem("trk") === u.uid) return;
+      const last = sessionStorage.getItem("trk") || ""; const [lu, lt] = last.split("|");
+      if (lu === u.uid && Date.now() - Number(lt || 0) < 20 * 60000) return;
       const tok = await firebase.auth().currentUser.getIdToken();
       const r = await fetch(C.workerUrl + "/guard/track", { method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify({ dev: deviceId(), fp: await hwPrint() }) });
-      if (r.ok) sessionStorage.setItem("trk", u.uid);
+      if (r.ok) sessionStorage.setItem("trk", u.uid + "|" + Date.now());
     } catch (e) {}
   }
   App.trackDevice = trackDevice;
+  setInterval(() => { if (App.user && !App.user.admin) trackDevice(App.user); }, 5 * 60000);
+
+
+  /* بوابة VPN: لو الزائر على VPN/بروكسي/Tor ما بيدخل الموقع لين يطفيه (الأدمن مستثنى، والفشل = سماح) */
+  (function vpnGate() {
+    if (/overlay/.test(location.pathname)) return;
+    let adm = false; try { adm = JSON.parse(localStorage.getItem("lastUser") || "{}").admin === true; } catch (e) {}
+    if (adm) return;
+    const show = () => {
+      if (document.getElementById("vpnGate") || (App.user && App.user.admin)) return;
+      const d = document.createElement("div"); d.id = "vpnGate";
+      d.style.cssText = "position:fixed;inset:0;z-index:99999;background:#05070f;color:#eef3ff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:inherit";
+      d.innerHTML = '<div style="max-width:420px"><div style="font-size:54px">🛡️</div><h2 style="margin:10px 0">أوقف الـ VPN أو البروكسي</h2><p style="color:#9aa8c7;line-height:1.8">الموقع ما بيشتغل مع VPN أو بروكسي أو Tor. طفّيه وحدّث الصفحة عشان تدخل.</p><button class="btn primary" id="vpnRetry" style="margin-top:14px">حدّثت، جرّب مرة ثانية</button></div>';
+      (document.body || document.documentElement).appendChild(d);
+      document.getElementById("vpnRetry").onclick = () => { try { sessionStorage.removeItem("vpnok"); } catch (e) {} location.reload(); };
+    };
+    const hide = () => { const d = document.getElementById("vpnGate"); if (d) d.remove(); };
+    App.hideVpnGate = hide;
+    try { if (Date.now() - Number(sessionStorage.getItem("vpnok") || 0) < 5 * 60000) return; } catch (e) {}
+    const ctl = new AbortController(); setTimeout(() => ctl.abort(), 5000);
+    fetch(C.workerUrl + "/guard/vpn", { signal: ctl.signal }).then((r) => r.json()).then((j) => {
+      if (j && j.blocked) { if (document.body) show(); else document.addEventListener("DOMContentLoaded", show); }
+      else { try { sessionStorage.setItem("vpnok", String(Date.now())); } catch (e) {} }
+    }).catch(() => {});
+  })();
 
   let verRef = null;
   auth.onAuthStateChanged(async (u) => {
@@ -85,6 +111,7 @@
       if (!App.user.admin) trackDevice(App.user);
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
     }
+    if (App.user && App.user.admin && App.hideVpnGate) App.hideVpnGate();
     App.ready = true; document.body.classList.add("ready");
     renderUserBox();
     App.listeners.forEach((fn) => fn(App.user));

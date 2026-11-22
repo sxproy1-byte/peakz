@@ -7,7 +7,7 @@
   const $ = (id) => document.getElementById(id);
 
   let users = {}, profiles = {}, verifiedMap = {}; const shown = new Set();
-  let blocked = {}, cleared = {}, guardCfg = {};
+  let blocked = {}, cleared = {}, guardCfg = {}, bans = {}, vpn = {};
   let cmds = {}, botLast = null;
   let hook = null, lastChatAt = 0;   // حالة ربط الشات (Webhook)
 
@@ -46,48 +46,75 @@
   }
 
 
-  /* ---------- الحماية من الحسابات المكررة (Alts) ---------- */
+  /* ---------- الحماية من الحسابات المكررة (Alts) + الحظر ---------- */
   const REASON = { ip: "نفس الـ IP", dev: "نفس الجهاز/المتصفح", fp: "نفس بصمة الجهاز", stake: "نفس يوزر ستيك", wallet: "نفس عنوان المحفظة", discord: "نفس الديسكورد" };
-  function groupsOf() {
-    // نجمع الحسابات المتشابهة بمجموعات (union-find) من سجل blocked
+  const isBanned = (uid) => (bans[uid] || {}).active === true;
+  const nm = (uid) => (users[uid] || {}).name || uid;
+  async function adminPost(path, body) {
+    const t = await firebase.auth().currentUser.getIdToken();
+    const r = await fetch(C.workerUrl + path, { method: "POST", headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(j.error || r.status); return j;
+  }
+  function groupOrder() {
+    // نرتب الحسابات بمجموعات (union-find) عشان الحسابات المرتبطة تكون ورا بعض بالجدول
+    const ids = uniqIds([...Object.keys(blocked), ...Object.keys(bans).filter((k) => isBanned(k))]);
     const parent = {}; const find = (x) => (parent[x] === undefined ? (parent[x] = x) : parent[x] === x ? x : (parent[x] = find(parent[x])));
-    const uni = (a, b) => { parent[find(a)] = find(b); };
-    Object.keys(blocked).forEach((uid) => { find(uid); Object.values((blocked[uid] || {}).reasons || {}).forEach((arr) => (arr || []).forEach((o) => uni(uid, o))); });
-    const g = {};
-    Object.keys(parent).forEach((uid) => { (g[find(uid)] = g[find(uid)] || []).push(uid); });
-    return Object.values(g).filter((m) => m.length > 0).sort((a, b) => Math.max(...b.map((x) => (blocked[x] || {}).at || 0)) - Math.max(...a.map((x) => (blocked[x] || {}).at || 0)));
+    ids.forEach((u) => { find(u); Object.values((blocked[u] || {}).reasons || {}).forEach((a) => (a || []).forEach((o) => parent[find(u)] = find(o))); if ((bans[u] || {}).via) parent[find(u)] = find(bans[u].via); });
+    const g = {}; Object.keys(parent).forEach((u) => { (g[find(u)] = g[find(u)] || []).push(u); });
+    return Object.values(g).sort((a, b) => b.length - a.length);
+  }
+  const uniqIds = (a) => [...new Set(a)];
+  function statusTag(uid) {
+    const b = bans[uid] || {};
+    if (b.active === true) return '<span class="vt bad">محظور</span>' + (b.by === "auto" ? ' <small style="color:var(--muted)">(تلقائي)</small>' : "");
+    if (vpn[uid]) return '<span class="vt bad">VPN</span>';
+    if (blocked[uid]) return '<span class="vt bad">موقوف التوثيق</span>';
+    if (b.active === false) return '<span class="vt">انرفع الحظر</span>';
+    return "—";
   }
   function renderAlts() {
     const el = $("altsList"); if (!el) return;
-    const gs = groupsOf();
-    $("altsCount").textContent = gs.length ? `(${gs.length} مجموعة)` : "";
-    el.innerHTML = gs.length ? gs.map((m, i) => `<div class="altg"><div class="alth">مجموعة ${i + 1} <button class="btn ghost small" data-clrall="${esc(m.join(","))}">اعتماد الكل ✓</button></div>
-      ${m.map((uid) => {
-        const u = users[uid] || {}, p = profiles[uid] || {}, b = blocked[uid] || {}, d = p.discord || {};
-        const why = Object.keys(b.reasons || {}).filter((k) => (b.reasons[k] || []).length).map((k) => REASON[k] || k).join(" · ");
-        return `<div class="arow"><div class="ainfo"><b>${esc(u.name || uid)}</b> <span class="vt bad">${b.at ? "موقوف" : "مرتبط"}</span>
-          <div style="color:var(--muted);font-size:13px">ديسكورد: ${esc(d.name) || "—"} · ستيك: <span dir="ltr">${esc(p.stake) || "—"}</span>${why ? " · السبب: " + esc(why) : ""}</div></div>
-          <div class="row"><button class="btn primary small" data-clr="${esc(uid)}">اعتماد ✓</button></div></div>`;
-      }).join("")}</div>`).join("") : '<div class="empty" style="padding:14px">ما في حسابات مكررة مكتشفة 👍</div>';
+    const gs = groupOrder();
+    $("altsCount").textContent = gs.length ? `(${gs.reduce((n, m) => n + m.length, 0)} حساب)` : "";
+    if (!gs.length) { el.innerHTML = '<div class="empty" style="padding:14px">ما في حسابات مكررة مكتشفة 👍</div>'; return; }
+    el.innerHTML = `<div class="utable-wrap"><table class="utable"><thead><tr><th>#</th><th>الحساب</th><th>الحالة</th><th>ديسكورد</th><th>ستيك</th><th>مشترك مع</th><th></th></tr></thead><tbody>` +
+      gs.map((m, i) => m.map((uid, k) => {
+        const p = profiles[uid] || {}, d = p.discord || {}, b = blocked[uid] || {}, ban = bans[uid] || {};
+        const links = Object.entries(b.reasons || {}).flatMap(([kind, arr]) => (arr || []).map((o) => `<span class="chip">${esc(nm(o))} <small>${esc(REASON[kind] || kind)}</small></span>`));
+        if (ban.via) links.push(`<span class="chip">${esc(nm(ban.via))} <small>سبب الحظر التلقائي</small></span>`);
+        return `<tr${k === 0 ? ' class="gstart"' : ""}><td>${k === 0 ? i + 1 : ""}</td><td><b>${esc(nm(uid))}</b></td><td>${statusTag(uid)}</td><td>${esc(d.name) || "—"}</td><td dir="ltr">${esc(p.stake) || "—"}</td>
+          <td>${links.join(" ") || "—"}</td>
+          <td><div class="row" style="gap:6px;flex-wrap:nowrap">${isBanned(uid) ? `<button class="btn ghost small" data-unban="${esc(uid)}">فك الحظر</button>` : `<button class="btn danger small" data-ban="${esc(uid)}">حظر</button>`}
+            ${blocked[uid] || vpn[uid] ? `<button class="btn primary small" data-clr="${esc(uid)}">اعتماد ✓</button>` : ""}</div></td></tr>`;
+      }).join("")).join("") + "</tbody></table></div>";
+    bindBanBtns(el);
+  }
+  function bindBanBtns(el) {
+    el.querySelectorAll("[data-ban]").forEach((b) => (b.onclick = () => banUser(b.dataset.ban, true)));
+    el.querySelectorAll("[data-unban]").forEach((b) => (b.onclick = () => banUser(b.dataset.unban, false)));
     el.querySelectorAll("[data-clr]").forEach((b) => (b.onclick = () => clearAlt([b.dataset.clr])));
-    el.querySelectorAll("[data-clrall]").forEach((b) => (b.onclick = () => clearAlt(b.dataset.clrall.split(","))));
+  }
+  async function banUser(uid, ban) {
+    if (ban ? !confirm("حظر " + nm(uid) + "؟ بيقدر يتفرّج بس، وكل حساباته المرتبطة بتنحظر كمان.") : !confirm("فك الحظر عن " + nm(uid) + " بس؟ حساباته الثانية بتضل محظورة، وأي حساب جديد بيسجّله بنفس الجهاز/الـ IP بينحظر.")) return;
+    try { const r = await adminPost("/guard/ban", { uid, ban }); App.toast(ban ? "تم الحظر ✓ (" + r.banned + " حساب)" : "تم فك الحظر ✓"); }
+    catch (e) { console.error(e); App.toast("فشل — تأكد إن الـ Worker محدّث"); }
   }
   async function clearAlt(uids) {
     if (!confirm("اعتماد هذا الحساب (مو حساب مكرر)؟ رح يرجع توثيقه حسب الديسكورد، وما رح ينفحص تشابهه مرة ثانية.")) return;
     try {
       const up = {};
-      uids.forEach((id) => { up["cleared/" + id] = true; up["blocked/" + id] = null; });
+      uids.forEach((id) => { up["cleared/" + id] = true; up["blocked/" + id] = null; up["vpn/" + id] = null; });
       await db.ref().update(up);
       await Promise.all(uids.map((id) => adminApi("/discord/check?uid=" + encodeURIComponent(id)).catch(() => null)));
       App.toast("تم الاعتماد ✓");
     } catch (e) { console.error(e); App.toast("فشل — تأكد من قواعد Firebase"); }
   }
   function renderGuardCfg() {
-    const f = { ip: guardCfg.ip !== false, dev: guardCfg.dev !== false, fp: guardCfg.fp === true };
+    const f = { ip: guardCfg.ip !== false, dev: guardCfg.dev !== false, fp: guardCfg.fp === true, vpn: guardCfg.vpn !== false };
     Object.keys(f).forEach((k) => { const el = $("gc_" + k); if (el) el.checked = f[k]; });
   }
   function saveGuardCfg() {
-    db.ref("config/guard").set({ ip: $("gc_ip").checked, dev: $("gc_dev").checked, fp: $("gc_fp").checked }).then(() => App.toast("تم الحفظ ✓"), () => App.toast("فشل الحفظ"));
+    db.ref("config/guard").set({ ip: $("gc_ip").checked, dev: $("gc_dev").checked, fp: $("gc_fp").checked, vpn: $("gc_vpn").checked }).then(() => App.toast("تم الحفظ ✓"), () => App.toast("فشل الحفظ"));
   }
 
   let started = false;
@@ -98,10 +125,11 @@
       <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
 
       <div class="panel"><h2>🕵️ Alts — الحسابات المكررة <small id="altsCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
-        <p class="hint" style="text-align:start;margin-bottom:12px">أي حسابين بنفس يوزر ستيك / عنوان المحفظة / الديسكورد، أو بنفس الـ IP أو نفس الجهاز، بينلغى توثيقهم تلقائياً وبيظهروا هون. لو الحسابين لأشخاص مختلفين فعلاً (إخوة بنفس البيت مثلاً) اضغط <b>اعتماد</b>.</p>
+        <p class="hint" style="text-align:start;margin-bottom:12px">أي حسابين بنفس يوزر ستيك / عنوان المحفظة / الديسكورد، أو بنفس الـ IP أو نفس الجهاز، بينلغى توثيقهم تلقائياً وبيظهروا بالجدول. <b>حظر</b>: بيقدر يتفرّج بس، وكل حساباته المرتبطة بتنحظر معه. بعد <b>فك الحظر</b> عن حساب، أي حساب جديد بنفس الجهاز/الـ IP بينحظر لحاله. لو الحسابين لأشخاص مختلفين فعلاً (إخوة بنفس البيت مثلاً) اضغط <b>اعتماد</b>.</p>
         <div class="row" style="margin-bottom:12px;gap:18px">
           <label class="row" style="gap:6px"><input type="checkbox" id="gc_ip"> نفس الـ IP</label>
           <label class="row" style="gap:6px"><input type="checkbox" id="gc_dev"> نفس الجهاز/المتصفح</label>
+          <label class="row" style="gap:6px"><input type="checkbox" id="gc_vpn"> منع VPN / بروكسي / Tor</label>
           <label class="row" style="gap:6px"><input type="checkbox" id="gc_fp"> بصمة الجهاز (ممكن تغلط مع نفس نوع الجوال)</label>
         </div>
         <div class="alist" id="altsList"></div>
@@ -134,11 +162,13 @@
     $("cSave").onclick = saveCmd;
     $("uSearch").oninput = renderUsers;
     $("uCsv").onclick = exportCsv;
-    ["ip", "dev", "fp"].forEach((k) => ($("gc_" + k).onchange = saveGuardCfg));
+    ["ip", "dev", "fp", "vpn"].forEach((k) => ($("gc_" + k).onchange = saveGuardCfg));
     $("crConnect").onclick = () => { location.href = C.workerUrl + "/connect?r=admin-database.html"; };
     db.ref("commands").on("value", (x) => { cmds = x.val() || {}; renderCmds(); });
     db.ref("config/botLast").on("value", (x) => { botLast = x.val(); renderBot(); });
     db.ref("config/guard").on("value", (x) => { guardCfg = x.val() || {}; renderGuardCfg(); });
+    db.ref("bans").on("value", (x) => { bans = x.val() || {}; renderAlts(); renderUsers(); }, () => {});
+    db.ref("vpn").on("value", (x) => { vpn = x.val() || {}; renderAlts(); renderUsers(); }, () => {});
     db.ref("blocked").on("value", (x) => { blocked = x.val() || {}; renderAlts(); }, () => {});
     db.ref("users").on("value", (x) => { users = x.val() || {}; renderUsers(); renderAlts(); });
     db.ref("profiles").on("value", (x) => { profiles = x.val() || {}; renderUsers(); renderAlts(); });
@@ -161,14 +191,15 @@
     const q = (document.getElementById("uSearch").value || "").trim().toLowerCase();
     const all = rows(), list = all.filter((r) => !q || [r.kick, r.discord, r.stake].some((x) => String(x).toLowerCase().includes(q)));
     document.getElementById("uCount").textContent = `(${all.length} مسجّل · ${all.filter((r) => r.ok).length} موثّق)`;
-    const tag = (r) => r.ok ? '<span class="vt ok">موثّق</span>' : r.status === "norole" ? '<span class="vt bad">بدون رول</span>' : r.status === "nomember" ? '<span class="vt bad">مو بالسيرفر</span>' : r.status === "alt" ? '<span class="vt bad">حساب مكرر</span>' : '<span class="vt">غير مربوط</span>';
+    const tag = (r) => r.ok ? '<span class="vt ok">موثّق</span>' : r.status === "norole" ? '<span class="vt bad">بدون رول</span>' : r.status === "nomember" ? '<span class="vt bad">مو بالسيرفر</span>' : r.status === "banned" ? '<span class="vt bad">محظور</span>' : r.status === "vpn" ? '<span class="vt bad">VPN</span>' : r.status === "alt" ? '<span class="vt bad">حساب مكرر</span>' : '<span class="vt">غير مربوط</span>';
     body.innerHTML = list.length ? list.map((r) => `<tr>
       <td>${esc(r.kick)}</td><td>${tag(r)}</td><td>${esc(r.discord) || "—"}</td><td dir="ltr">${esc(r.stake) || "—"}</td>
       <td dir="ltr">${r.wallet ? `<span class="wal">${shown.has(r.uid) ? esc(r.wallet) : mask(r.wallet)}</span>
         <button class="btn ghost small" data-eye="${r.uid}">${shown.has(r.uid) ? "إخفاء" : "إظهار"}</button><button class="btn ghost small" data-copy="${esc(r.wallet)}">نسخ</button>` : "—"}</td>
-      <td><button class="btn primary small" data-edit="${r.uid}">تعديل</button></td></tr>`).join("")
+      <td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn primary small" data-edit="${r.uid}">تعديل</button>${isBanned(r.uid) ? `<button class="btn ghost small" data-unban="${r.uid}">فك الحظر</button>` : `<button class="btn danger small" data-ban="${r.uid}">حظر</button>`}</div></td></tr>`).join("")
       : `<tr><td colspan="6" class="msg">لا يوجد نتائج</td></tr>`;
     body.querySelectorAll("[data-eye]").forEach((b) => (b.onclick = () => { const k = b.dataset.eye; shown.has(k) ? shown.delete(k) : shown.add(k); renderUsers(); }));
+    bindBanBtns(body);
     body.querySelectorAll("[data-edit]").forEach((b) => (b.onclick = () => openEdit(b.dataset.edit)));
     body.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = () => navigator.clipboard.writeText(b.dataset.copy).then(() => App.toast("تم النسخ ✓"), () => App.toast("تعذّر النسخ"))));
   }

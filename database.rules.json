@@ -4,6 +4,14 @@
       ".read": true,
       ".write": "auth.token.admin === true"
     },
+    "bans": {
+      ".read": "auth.token.admin === true",
+      ".write": "auth.token.admin === true"
+    },
+    "vpn": {
+      ".read": "auth.token.admin === true",
+      ".write": "auth.token.admin === true"
+    },
     "blocked": {
       ".read": "auth.token.admin === true",
       ".write": "auth.token.admin === true"
@@ -49,11 +57,11 @@
         ".read": "auth.uid === $uid || auth.token.admin === true",
         ".write": "auth.token.admin === true",
         "stake": {
-          ".write": "auth.uid === $uid && !data.exists()",
+          ".write": "auth.uid === $uid && !data.exists() && root.child('bans').child(auth.uid).child('active').val() !== true",
           ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_.-]{2,40}$/)"
         },
         "wallet": {
-          ".write": "auth.uid === $uid && !data.exists()",
+          ".write": "auth.uid === $uid && !data.exists() && root.child('bans').child(auth.uid).child('active').val() !== true",
           ".validate": "newData.isString() && newData.val().matches(/^0x[a-fA-F0-9]{40}$/)"
         },
         "updatedAt": {
@@ -71,13 +79,13 @@
     },
     "stakeIndex": {
       "$k": {
-        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid)",
+        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid && root.child('bans').child(auth.uid).child('active').val() !== true)",
         ".validate": "newData.isString()"
       }
     },
     "walletIndex": {
       "$k": {
-        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid)",
+        ".write": "auth.token.admin === true || (!data.exists() && newData.val() === auth.uid && root.child('bans').child(auth.uid).child('active').val() !== true)",
         ".validate": "newData.isString()"
       }
     },
