@@ -296,3 +296,5 @@ body:not(.ready) [data-login],body:not(.ready) #loginBtn{visibility:hidden}
 /* English (LTR) */
 .btn.small#langBtn{min-width:44px;font-weight:700}
 body.en .brk{direction:ltr}
+.altg{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:rgba(5,7,15,.35)}
+.altg .alth{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:8px}

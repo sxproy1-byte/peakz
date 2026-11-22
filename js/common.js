@@ -39,6 +39,36 @@
     }
   }
 
+
+  /* بصمة الجهاز/المتصفح: معرّف عشوائي ثابت بالمتصفح + بصمة عتاد، بتنبعث للـ Worker مرة بالجلسة لكشف الحسابات المكررة */
+  async function sha256hex(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("").slice(0, 32); }
+  function deviceId() {
+    let id = ""; try { id = localStorage.getItem("did") || (document.cookie.match(/(?:^|; )did=([a-f0-9]{32})/) || [])[1] || ""; } catch (e) {}
+    if (!/^[a-f0-9]{32}$/.test(id)) id = [...crypto.getRandomValues(new Uint8Array(16))].map((x) => x.toString(16).padStart(2, "0")).join("");
+    try { localStorage.setItem("did", id); } catch (e) {}
+    try { document.cookie = "did=" + id + "; max-age=31536000; path=/; SameSite=Lax"; } catch (e) {}
+    return id;
+  }
+  async function hwPrint() {
+    const p = [screen.width, screen.height, screen.colorDepth, devicePixelRatio, Intl.DateTimeFormat().resolvedOptions().timeZone, (navigator.languages || []).join(","), navigator.hardwareConcurrency, navigator.deviceMemory, navigator.platform, navigator.maxTouchPoints];
+    try {
+      const cv = document.createElement("canvas"); cv.width = 200; cv.height = 40; const g = cv.getContext("2d");
+      g.textBaseline = "top"; g.font = "16px Arial"; g.fillStyle = "#f60"; g.fillRect(10, 5, 80, 20); g.fillStyle = "#069"; g.fillText("peakz fp 😀 ƒ", 4, 12); p.push(cv.toDataURL());
+      const gl = document.createElement("canvas").getContext("webgl"), ex = gl && gl.getExtension("WEBGL_debug_renderer_info");
+      if (ex) p.push(gl.getParameter(ex.UNMASKED_VENDOR_WEBGL), gl.getParameter(ex.UNMASKED_RENDERER_WEBGL));
+    } catch (e) {}
+    return sha256hex(p.join("|"));
+  }
+  async function trackDevice(u) {
+    try {
+      if (sessionStorage.getItem("trk") === u.uid) return;
+      const tok = await firebase.auth().currentUser.getIdToken();
+      const r = await fetch(C.workerUrl + "/guard/track", { method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify({ dev: deviceId(), fp: await hwPrint() }) });
+      if (r.ok) sessionStorage.setItem("trk", u.uid);
+    } catch (e) {}
+  }
+  App.trackDevice = trackDevice;
+
   let verRef = null;
   auth.onAuthStateChanged(async (u) => {
     if (verRef) { verRef.off(); verRef = null; }
@@ -52,6 +82,7 @@
       try { localStorage.setItem("lastUser", JSON.stringify({ name: App.user.name, admin: App.user.admin, avatar })); } catch (e) {}
       verRef = db.ref("verified/" + u.uid + "/ok");
       verRef.on("value", (x) => { App.verified = x.val() === true; App.listeners.forEach((fn) => fn(App.user)); renderUserBox(); }, () => {});
+      if (!App.user.admin) trackDevice(App.user);
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
     }
     App.ready = true; document.body.classList.add("ready");

@@ -7,6 +7,7 @@
 
   const MSG = {
     ok: "✅ تم التوثيق بنجاح",
+    alt: "تم إيقاف توثيق حسابك بسبب تشابه مع حساب آخر، تواصل مع الإدارة",
     norole: "حسابك انربط، بس ما عندك رول التوثيق بالسيرفر",
     nomember: "حساب الديسكورد هذا مو موجود بسيرفرنا — انضم للسيرفر وجرّب مرة ثانية",
     dup: "حساب الديسكورد هذا مربوط بحساب ثاني على الموقع",
@@ -81,6 +82,7 @@
     re.style.display = d ? "" : "none";
     tx.textContent = ok ? `موثّق ✓ — ديسكورد: ${d ? d.name : ""}`
       : !d ? "غير مربوط — اربط حساب الديسكورد"
+      : ver && ver.status === "alt" ? "⛔ تم إيقاف توثيق حسابك بسبب تشابه مع حساب آخر. تواصل مع الإدارة لو هذا خطأ."
       : ver && ver.status === "nomember" ? `مربوط (${d.name}) بس حسابك مو موجود بالسيرفر`
       : `مربوط (${d.name}) بس ما عندك رول التوثيق`;
   }
@@ -115,6 +117,8 @@
     catch (e) {
       console.error(e);
       const [sT, wT] = await Promise.all([stake ? db.ref("stakeIndex/" + keyOf(stake)).once("value").catch(() => null) : null, wallet ? db.ref("walletIndex/" + keyOf(wallet)).once("value").catch(() => null) : null]);
+      const dupT = sT && sT.val() && sT.val() !== uid ? "stake" : wT && wT.val() && wT.val() !== uid ? "wallet" : "";
+      if (dupT) { try { const tok = await firebase.auth().currentUser.getIdToken(); fetch(C.workerUrl + "/guard/dup", { method: "POST", headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" }, body: JSON.stringify({ type: dupT, key: keyOf(dupT === "stake" ? stake : wallet) }) }).catch(() => {}); } catch (e2) {} }
       App.toast(sT && sT.val() && sT.val() !== uid ? "يوزر ستيك هذا مستخدم بحساب ثاني" : wT && wT.val() && wT.val() !== uid ? "هذا العنوان مستخدم بحساب ثاني" : "فشل الحفظ — يمكن البيانات مقفولة");
     }
   }
