@@ -23,6 +23,20 @@
     location.href = C.workerUrl + "/login" + r;
   };
   App.logout = () => auth.signOut().then(() => location.reload());
+  // نافذة تأكيد تسجيل الخروج
+  App.confirmLogout = () => {
+    if (document.getElementById("logoutModal")) return;
+    const m = document.createElement("div"); m.id = "logoutModal"; m.className = "lo-modal";
+    m.innerHTML = `<div class="lo-box" role="dialog" aria-modal="true"><h3>تسجيل الخروج</h3><p>هل تريد حقاً تسجيل الخروج؟</p>
+      <div class="lo-btns"><button type="button" class="btn ghost" id="loNo">إلغاء</button><button type="button" class="btn danger" id="loYes">تسجيل الخروج</button></div></div>`;
+    document.body.appendChild(m);
+    const close = () => m.remove();
+    document.getElementById("loNo").onclick = close;
+    document.getElementById("loYes").onclick = () => { close(); App.logout(); };
+    m.addEventListener("click", (e) => { if (e.target === m) close(); });
+    document.addEventListener("keydown", function k(e) { if (e.key === "Escape") { close(); document.removeEventListener("keydown", k); } });
+  };
+  document.addEventListener("click", (e) => { const m = document.getElementById("umenu"); if (m && !m.hidden && !e.target.closest(".uwrap")) { m.hidden = true; const c = document.getElementById("uchip"); if (c) c.setAttribute("aria-expanded", "false"); } });
   App.onUser = (fn) => App.listeners.push(fn);
 
   // التوكن العائد من الـ Worker يجي بالـ hash: #token=...&avatar=...
@@ -149,16 +163,13 @@
     }
     const b = document.querySelector(".brand");
     if (b) b.innerHTML = `<img class="mark" src="img/logo.png" alt=""><span>${esc(C.siteName)}</span>`;
-    const f = document.getElementById("follow");
-    if (f) { f.href = "https://kick.com/" + C.streamerSlug; f.target = "_blank"; f.rel = "noopener"; f.textContent = "تابع على كيك"; }
-    const te = document.querySelector(".top-end");
-    if (te && window.I18N && I18N.enabled && !document.getElementById("langBtn")) {
+    if (window.I18N && I18N.enabled && !document.getElementById("langBtn")) {       // زر اللغة: عائم بزاوية الشاشة
       const lb = document.createElement("button");
-      lb.id = "langBtn"; lb.className = "btn ghost small"; lb.type = "button"; lb.setAttribute("translate", "no");
+      lb.id = "langBtn"; lb.className = "lang-fab"; lb.type = "button"; lb.setAttribute("translate", "no");
       const upd = () => { lb.textContent = I18N.lang === "en" ? "ع" : "EN"; lb.title = I18N.lang === "en" ? "العربية" : "English"; };
       lb.onclick = () => I18N.set(I18N.lang === "en" ? "ar" : "en"); upd();
       window.addEventListener("langchange", () => { upd(); renderUserBox(); });
-      te.insertBefore(lb, te.firstChild);
+      document.body.appendChild(lb);
     }
     renderUserBox();
   };
@@ -181,9 +192,16 @@
     if (!u) { box.innerHTML = `<button class="btn primary" id="loginBtn">تسجيل الدخول بكيك</button>`; document.getElementById("loginBtn").onclick = () => App.login(location.pathname.split("/").pop() || ""); return; }
     const av = u.avatar ? `<img src="${esc(u.avatar)}" alt="">` : `<div class="av">${esc(u.name[0].toUpperCase())}</div>`;
     box.innerHTML = `${u.admin ? '<a class="btn ghost small" href="admin.html">لوحة التحكم</a>' : ""}
-      <a class="userchip" href="profile.html" title="ملفي الشخصي">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div></a>
-      <button class="btn ghost small" id="logoutBtn">خروج</button>`;
-    document.getElementById("logoutBtn").onclick = App.logout;
+      <div class="uwrap">
+        <button type="button" class="userchip" id="uchip" aria-haspopup="true" aria-expanded="false">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div><span class="caret">▾</span></button>
+        <div class="umenu" id="umenu" hidden>
+          <a href="profile.html" class="uitem">⚙️ الإعدادات</a>
+          <button type="button" class="uitem out" id="logoutBtn">🚪 تسجيل الخروج</button>
+        </div>
+      </div>`;
+    const menu = document.getElementById("umenu"), chip = document.getElementById("uchip");
+    chip.onclick = (e) => { e.stopPropagation(); const open = menu.hidden; menu.hidden = !open; chip.setAttribute("aria-expanded", String(open)); };
+    document.getElementById("logoutBtn").onclick = () => { menu.hidden = true; App.confirmLogout(); };
   }
 
   // لوحة رابط أوفرلاي OBS مع زر نسخ (تُستعمل بصفحات الأدمن)
