@@ -105,9 +105,15 @@
       try { res = await u.getIdTokenResult(true); } catch (e) { try { res = await u.getIdTokenResult(); } catch (e2) { res = { claims: {} }; } }   // لو انقطع النت ما نعلّق الواجهة
       let avatar = ""; try { avatar = localStorage.getItem("avatar") || ""; } catch (e) {}
       App.user = { uid: u.uid, name: res.claims.kickName || "user", admin: res.claims.admin === true, avatar };
-      try { localStorage.setItem("lastUser", JSON.stringify({ name: App.user.name, admin: App.user.admin, avatar })); } catch (e) {}
+      try { let prev = null; try { prev = JSON.parse(localStorage.getItem("lastUser") || "null"); } catch (e) {}
+        const o = { name: App.user.name, admin: App.user.admin, avatar }; if (prev && prev.name === o.name && typeof prev.ver === "boolean") o.ver = prev.ver;   // نحتفظ بآخر حالة توثيق معروفة عشان ما تومض الواجهة
+        localStorage.setItem("lastUser", JSON.stringify(o)); } catch (e) {}
       verRef = db.ref("verified/" + u.uid + "/ok");
-      verRef.on("value", (x) => { App.verified = x.val() === true; App.listeners.forEach((fn) => fn(App.user)); renderUserBox(); }, () => {});
+      verRef.on("value", (x) => {
+        App.verified = x.val() === true;
+        try { const l = JSON.parse(localStorage.getItem("lastUser") || "null"); if (l && l.name === App.user.name) { l.ver = App.verified; localStorage.setItem("lastUser", JSON.stringify(l)); } } catch (e) {}
+        App.listeners.forEach((fn) => fn(App.user)); renderUserBox();
+      }, () => {});
       if (!App.user.admin) trackDevice(App.user);
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
     }
@@ -130,6 +136,11 @@
   ];
 
   App.shell = function (active) {
+    if (!document.getElementById("siteFoot")) {
+      const f = document.createElement("footer"); f.id = "siteFoot"; f.className = "site-foot";
+      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة`;
+      document.body.appendChild(f);
+    }
     const nav = document.getElementById("nav");
     if (nav) {
       nav.innerHTML = NAV.map(([href, ico, label, key, soon]) =>
@@ -152,6 +163,13 @@
     renderUserBox();
   };
 
+  // حالة التوثيق بالشريط: قبل ما توصل القيمة الحقيقية من Firebase نعرض آخر قيمة معروفة (أو لا شيء) بدل ما نومض "غير موثّق"
+  function verLabel(u) {
+    let v = null;
+    if (App.ready && App.verified !== null) v = App.verified;
+    else { try { const l = JSON.parse(localStorage.getItem("lastUser") || "null"); if (l && l.name === u.name && typeof l.ver === "boolean") v = l.ver; } catch (e) {} }
+    return v === null ? "" : v ? "موثّق ✅" : "غير موثّق ⚠️";
+  }
   function renderUserBox() {
     const box = document.getElementById("userbox");
     if (!box) return;
@@ -163,7 +181,7 @@
     if (!u) { box.innerHTML = `<button class="btn primary" id="loginBtn">تسجيل الدخول بكيك</button>`; document.getElementById("loginBtn").onclick = () => App.login(location.pathname.split("/").pop() || ""); return; }
     const av = u.avatar ? `<img src="${esc(u.avatar)}" alt="">` : `<div class="av">${esc(u.name[0].toUpperCase())}</div>`;
     box.innerHTML = `${u.admin ? '<a class="btn ghost small" href="admin.html">لوحة التحكم</a>' : ""}
-      <a class="userchip" href="profile.html" title="ملفي الشخصي">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${App.ready ? (App.verified ? "موثّق ✅" : "غير موثّق ⚠️") : ""}</small></div></a>
+      <a class="userchip" href="profile.html" title="ملفي الشخصي">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div></a>
       <button class="btn ghost small" id="logoutBtn">خروج</button>`;
     document.getElementById("logoutBtn").onclick = App.logout;
   }

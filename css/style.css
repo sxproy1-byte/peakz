@@ -299,3 +299,9 @@ body.en .brk{direction:ltr}
 .altg{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:rgba(5,7,15,.35)}
 .altg .alth{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:8px}
 .chip{display:inline-block;padding:2px 9px;margin:2px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12.5px}.chip small{color:var(--muted)}.utable tr.gstart td{border-top:2px solid var(--line)}
+
+/* الرئيسية: مربع اللايف تحت + فوتر الحقوق */
+.home-hero{grid-template-columns:1fr!important}
+.home-stream{max-width:920px;margin:0 auto 34px}
+.site-foot{text-align:center;color:var(--muted);font-size:13px;padding:22px 16px 30px;margin-top:10px;border-top:1px solid var(--line)}
+.site-foot b{color:#cfe0ff;font-weight:600;direction:ltr;unicode-bidi:isolate}
