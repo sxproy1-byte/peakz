@@ -103,7 +103,7 @@
       if (document.getElementById("vpnGate") || (App.user && App.user.admin)) return;
       const d = document.createElement("div"); d.id = "vpnGate";
       d.style.cssText = "position:fixed;inset:0;z-index:99999;background:#05070f;color:#eef3ff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:inherit";
-      d.innerHTML = '<div style="max-width:420px"><div style="font-size:54px">🛡️</div><h2 style="margin:10px 0">أوقف الـ VPN أو البروكسي</h2><p style="color:#9aa8c7;line-height:1.8">الموقع ما بيشتغل مع VPN أو بروكسي أو Tor. طفّيه وحدّث الصفحة عشان تدخل.</p><button class="btn primary" id="vpnRetry" style="margin-top:14px">حدّثت، جرّب مرة ثانية</button></div>';
+      d.innerHTML = '<div style="max-width:420px"><h2 style="margin:10px 0">أوقف الـ VPN أو البروكسي</h2><p style="color:#9aa8c7;line-height:1.8">الموقع ما بيشتغل مع VPN أو بروكسي أو Tor. طفّيه وحدّث الصفحة عشان تدخل.</p><button class="btn primary" id="vpnRetry" style="margin-top:14px">حدّثت، جرّب مرة ثانية</button></div>';
       (document.body || document.documentElement).appendChild(d);
       document.getElementById("vpnRetry").onclick = () => { try { sessionStorage.removeItem("vpnok"); } catch (e) {} location.reload(); };
     };
@@ -150,13 +150,29 @@
   };
   App.icon = (n) => ICONS[n] || "";
 
-  const NAV = [
-    ["index.html", "🏠", "الرئيسية", "home"],
-    ["giveaways.html", "🎟️", "المسابقات", "giveaways"],
-    ["bonus.html", "🎯", "البونص هانت", "bonus"],
-    ["tournaments.html", "⚔️", "البطولات", "tournaments"],
-    ["leaderboard.html", "🏆", "المتصدرين", "leaderboard"]
-  ];
+  // أيقونات خطّية بسيطة (SVG) للتنقل
+  const svg = (d) => `<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const NI = {
+    home: svg('<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/>'),
+    gift: svg('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v8H5v-8M7.5 8a2.5 2.5 0 1 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 1 1 0 5"/>'),
+    target: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'),
+    bracket: svg('<path d="M4 5h5v5H4zM4 14h5v5H4zM15 9.5h5v5h-5zM9 7.5h2.5v9H9M11.5 12H15"/>'),
+    trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'),
+    globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
+    chev: svg('<path d="m6 9 6 6 6-6"/>'),
+    gear: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+    grid: svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+    out: svg('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'),
+  };
+  // الصفحات: [الرابط، الأيقونة، الاسم، المفتاح، وصف قصير]
+  const PAGES = {
+    home: ["index.html", "home", "الرئيسية", "home"],
+    giveaways: ["giveaways.html", "gift", "المسابقات", "giveaways", "سحوبات مباشرة على البث"],
+    bonus: ["bonus.html", "target", "البونص هانت", "bonus", "خمّن الربح واربح الجوائز"],
+    tournaments: ["tournaments.html", "bracket", "البطولات", "tournaments", "تحدّي لاعبين بشجرة مباشرة"],
+    leaderboard: ["leaderboard.html", "trophy", "المتصدرين", "leaderboard"],
+  };
+  const EVENTS = ["giveaways", "bonus", "tournaments"];
 
   App.shell = function (active) {
     if (!document.getElementById("siteFoot")) {
@@ -164,21 +180,34 @@
       f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
       document.body.appendChild(f);
     }
+    const link = (k, cls) => { const [href, ic, label] = PAGES[k]; return `<a href="${href}" class="${cls || ""} ${k === active ? "active" : ""}">${label}</a>`; };
     const nav = document.getElementById("nav");
     if (nav) {
-      nav.innerHTML = NAV.map(([href, ico, label, key, soon]) =>
-        `<a href="${href}" class="${key === active ? "active" : ""}"><span>${ico}</span>${label}${soon ? '<span class="soon">قريباً</span>' : ""}</a>`
-      ).join("");
+      const evOn = EVENTS.includes(active);
+      nav.innerHTML = link("home") +
+        `<div class="dd ${evOn ? "active" : ""}"><button type="button" class="ddb" id="ddBtn" aria-haspopup="true" aria-expanded="false">الفعاليات ${NI.chev}</button>
+          <div class="ddp" id="ddPanel" hidden>${EVENTS.map((k) => { const [href, ic, label, , sub] = PAGES[k]; return `<a href="${href}" class="ddi ${k === active ? "active" : ""}"><span class="ddic">${NI[ic]}</span><span><b>${label}</b></span></a>`; }).join("")}</div></div>` +
+        link("leaderboard");
+      const btn = document.getElementById("ddBtn"), pn = document.getElementById("ddPanel");
+      btn.onclick = (e) => { e.stopPropagation(); const o = pn.hidden; pn.hidden = !o; btn.setAttribute("aria-expanded", String(o)); };
+      document.addEventListener("click", (e) => { if (!pn.hidden && !e.target.closest(".dd")) { pn.hidden = true; btn.setAttribute("aria-expanded", "false"); } });
+    }
+    // شريط سفلي بالجوال
+    if (!document.getElementById("mbar")) {
+      const m = document.createElement("nav"); m.id = "mbar"; m.className = "mbar";
+      m.innerHTML = ["home", "giveaways", "bonus", "tournaments", "leaderboard"].map((k) => { const [href, ic, label] = PAGES[k]; return `<a href="${href}" class="${k === active ? "active" : ""}">${NI[ic]}<span>${k === "bonus" ? "هانت" : label}</span></a>`; }).join("");
+      document.body.appendChild(m);
     }
     const b = document.querySelector(".brand");
     if (b) b.innerHTML = `<img class="mark" src="img/logo.png" alt=""><span>${esc(C.siteName)}</span>`;
-    if (window.I18N && I18N.enabled && !document.getElementById("langBtn")) {       // زر اللغة: عائم بزاوية الشاشة
+    const te = document.querySelector(".top-end");
+    if (te && window.I18N && I18N.enabled && !document.getElementById("langBtn")) {       // زر اللغة بالشريط
       const lb = document.createElement("button");
-      lb.id = "langBtn"; lb.className = "lang-fab"; lb.type = "button"; lb.setAttribute("translate", "no");
-      const upd = () => { lb.textContent = I18N.lang === "en" ? "ع" : "EN"; lb.title = I18N.lang === "en" ? "العربية" : "English"; };
+      lb.id = "langBtn"; lb.className = "langp"; lb.type = "button"; lb.setAttribute("translate", "no");
+      const upd = () => { lb.innerHTML = NI.globe + `<span>${I18N.lang === "en" ? "English" : "العربية"}</span>`; lb.title = I18N.lang === "en" ? "العربية" : "English"; };
       lb.onclick = () => I18N.set(I18N.lang === "en" ? "ar" : "en"); upd();
       window.addEventListener("langchange", () => { upd(); renderUserBox(); });
-      document.body.appendChild(lb);
+      te.insertBefore(lb, te.firstChild);
     }
     renderUserBox();
   };
@@ -188,7 +217,7 @@
     let v = null;
     if (App.ready && App.verified !== null) v = App.verified;
     else { try { const l = JSON.parse(localStorage.getItem("lastUser") || "null"); if (l && l.name === u.name && typeof l.ver === "boolean") v = l.ver; } catch (e) {} }
-    return v === null ? "" : v ? "موثّق ✅" : "غير موثّق ⚠️";
+    return v === null ? "" : v ? "موثّق" : "غير موثّق";
   }
   function renderUserBox() {
     const box = document.getElementById("userbox");
@@ -200,12 +229,13 @@
     }
     if (!u) { box.innerHTML = `<button class="btn primary" id="loginBtn">تسجيل الدخول بكيك</button>`; document.getElementById("loginBtn").onclick = () => App.login(location.pathname.split("/").pop() || ""); return; }
     const av = u.avatar ? `<img src="${esc(u.avatar)}" alt="">` : `<div class="av">${esc(u.name[0].toUpperCase())}</div>`;
-    box.innerHTML = `${u.admin ? '<a class="btn ghost small" href="admin.html">لوحة التحكم</a>' : ""}
-      <div class="uwrap">
-        <button type="button" class="userchip" id="uchip" aria-haspopup="true" aria-expanded="false">${av}<div><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div><span class="caret">▾</span></button>
+    box.innerHTML = `<div class="uwrap">
+        <button type="button" class="userchip ${verLabel(u) === "غير موثّق" ? "unv" : ""}" id="uchip" aria-haspopup="true" aria-expanded="false">${av}<div class="un"><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div>${NI.chev}</button>
         <div class="umenu" id="umenu" hidden>
-          <a href="profile.html" class="uitem">⚙️ الإعدادات</a>
-          <button type="button" class="uitem out" id="logoutBtn">🚪 تسجيل الخروج</button>
+          <a href="profile.html" class="uitem">${NI.gear}<span>الإعدادات</span></a>
+          ${u.admin ? `<a href="admin.html" class="uitem">${NI.grid}<span>لوحة التحكم</span></a>` : ""}
+          <div class="usep"></div>
+          <button type="button" class="uitem out" id="logoutBtn">${NI.out}<span>تسجيل الخروج</span></button>
         </div>
       </div>`;
     const menu = document.getElementById("umenu"), chip = document.getElementById("uchip");
@@ -224,7 +254,7 @@
   };
   App.overlayPanel = (file, title, hint) => {
     const url = new URL(file, location.href).href;
-    return `<div class="panel"><h2>📺 ${esc(title)} — أوفرلاي OBS</h2><div class="ovl"><input readonly value="${esc(url)}" onclick="this.select()"><button class="btn primary small" data-copyurl="${esc(url)}">نسخ الرابط</button><a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener">معاينة</a></div><div class="hint" style="margin-top:8px">${hint}</div></div>`;
+    return `<div class="panel"><h2>${esc(title)} — أوفرلاي OBS</h2><div class="ovl"><input readonly value="${esc(url)}" onclick="this.select()"><button class="btn primary small" data-copyurl="${esc(url)}">نسخ الرابط</button><a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener">معاينة</a></div><div class="hint" style="margin-top:8px">${hint}</div></div>`;
   };
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-copyurl]"); if (!b) return;

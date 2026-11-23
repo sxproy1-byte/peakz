@@ -48,7 +48,7 @@
       if (open) {
         const btn = !App.user ? `<button class="btn primary" data-login="1">سجّل دخول بكيك للمشاركة</button>`
           : mine ? `<button class="btn ghost" disabled>✓ تم دخولك السحب</button>`
-          : App.verified === false ? `<a class="btn primary" href="profile.html">⚠️ وثّق حسابك أولاً لتدخل</a>`
+          : App.verified === false ? `<a class="btn primary" href="profile.html">وثّق حسابك أولاً لتدخل</a>`
           : `<button class="btn primary" data-enter="${gid}">ادخل السحب</button>`;
         action = `<div class="timer" data-end="${g.endsAt}">${fmt(g.endsAt - App.now())}</div>${btn}
           <div class="hint">أو اكتب <code>${esc(g.keyword || C.defaultKeyword)}</code> بشات ${esc(C.streamerSlug)} على كيك</div>`;
@@ -57,13 +57,13 @@
       }
     } else {
       action = winners.length
-        ? `<div class="winners"><small>الفائزون</small><div class="chips">${winners.map((w) => `<span class="chip">🏆 ${esc(w.name)}</span>`).join("")}</div></div>`
+        ? `<div class="winners"><small>الفائزون</small><div class="chips">${winners.map((w) => `<span class="chip">${esc(w.name)}</span>`).join("")}</div></div>`
         : `<div class="hint">لا يوجد فائزون</div>`;
     }
     return `<div class="ticket">
-      <div class="t-stub">${badge}<div class="big">${esc(g.prize || "🎁")}</div><small>الجائزة</small></div>
+      <div class="t-stub">${badge}<div class="big">${esc(g.prize || "—")}</div><small>الجائزة</small></div>
       <div class="t-body"><h3>${esc(g.title)}</h3>
-        <div class="meta"><span>👥 <b>${count}</b> مشارك</span><span>🏆 <b>${g.winnersCount || 1}</b> فائز</span></div>
+        <div class="meta"><span><b>${count}</b> مشارك</span><span><b>${g.winnersCount || 1}</b> فائز</span></div>
         ${action}</div></div>`;
   }
 
@@ -72,7 +72,7 @@
     const list = ids.filter((id) => (tab === "past") === isDone(all[id]));
     const el = document.getElementById("list");
     if (!list.length) {
-      el.innerHTML = `<div class="empty"><span class="em">🎟️</span><div>${tab === "current" ? "ما في سحوبات حالياً، ترقّب البث قريباً" : "لا توجد مسابقات سابقة"}</div></div>`;
+      el.innerHTML = `<div class="empty"><div>${tab === "current" ? "ما في سحوبات حالياً، ترقّب البث قريباً" : "لا توجد مسابقات سابقة"}</div></div>`;
       return;
     }
     el.innerHTML = `<div class="tickets">${list.map((id) => card(id, all[id])).join("")}</div>`;

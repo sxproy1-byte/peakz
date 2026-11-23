@@ -6,7 +6,7 @@
   let prof = null, ver = null, started = false;
 
   const MSG = {
-    ok: "✅ تم التوثيق بنجاح",
+    ok: "تم التوثيق بنجاح",
     banned: "حسابك محظور — بتقدر تتفرّج بس",
     vpn: "أوقف الـ VPN/البروكسي وحدّث الصفحة عشان يرجع توثيقك",
     alt: "تم إيقاف توثيق حسابك بسبب تشابه مع حساب آخر، تواصل مع الإدارة",
@@ -39,21 +39,21 @@
     if (started) return; started = true;
     root.innerHTML = `
       <h1 class="plain">ملفي الشخصي</h1>
-      <div class="panel"><h2>🛡️ توثيق الحساب (ديسكورد)</h2>
+      <div class="panel"><h2>توثيق الحساب (ديسكورد)</h2>
         <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px"><span class="dot" id="vDot"></span> <span id="vText">جاري الفحص...</span></p>
         <p class="hint" style="text-align:start;margin-bottom:14px">لازم تربط حسابك بالديسكورد وتكون موثّق بسيرفرنا (عندك رول التوثيق) عشان تقدر تدخل المسابقات. <b>بعد الربط ما بتقدر تغيّره</b> (الحسابات المتعددة ممنوعة)، وأي تعديل لازم يتم عن طريق الإدارة.</p>
         <div class="row"><button class="btn primary" id="dLink">ربط ديسكورد</button>
-          <button class="btn ghost" id="dRe">🔄 تحديث الحالة</button>
+          <button class="btn ghost" id="dRe">تحديث الحالة</button>
           ${C.discordInvite ? `<a class="btn ghost" href="${esc(C.discordInvite)}" target="_blank" rel="noopener">انضم للسيرفر</a>` : ""}</div>
       </div>
-      <div class="panel"><h2>💳 بيانات الجوائز</h2>
+      <div class="panel"><h2>بيانات الجوائز</h2>
         <div class="form">
           <div class="field"><label>يوزر ستيك (Stake)</label><input id="pStake" dir="ltr" placeholder="username" maxlength="40" autocomplete="off"></div>
           <div class="field" style="grid-column:span 2"><label>عنوان USDT — شبكة BSC (BEP20)</label><input id="pWallet" dir="ltr" placeholder="0x..." maxlength="42" autocomplete="off" spellcheck="false"></div>
           <div class="field"><label>&nbsp;</label><button class="btn primary" id="pSave" style="width:100%">حفظ</button></div>
         </div>
         <p class="hint" id="lockNote" style="text-align:start;margin-top:12px;color:var(--gold)"></p>
-        <p class="hint" style="text-align:start;margin-top:12px">⚠️ تأكد إن العنوان على شبكة <b>BSC (BEP20)</b> بالتحديد. الإرسال لعنوان غلط أو شبكة ثانية ما بيرجع. بياناتك ما بتظهر لأي مستخدم، بس لك وللإدارة. <b>بعد الحفظ ما بتقدر تعدّلها</b> وأي تغيير لازم عن طريق الإدارة (الحسابات المتعددة ممنوعة).</p>
+        <p class="hint" style="text-align:start;margin-top:12px">تأكد إن العنوان على شبكة <b>BSC (BEP20)</b> بالتحديد. الإرسال لعنوان غلط أو شبكة ثانية ما بيرجع. بياناتك ما بتظهر لأي مستخدم، بس لك وللإدارة. <b>بعد الحفظ ما بتقدر تعدّلها</b> وأي تغيير لازم عن طريق الإدارة (الحسابات المتعددة ممنوعة).</p>
       </div>`;
     document.getElementById("dLink").onclick = linkDiscord;
     document.getElementById("dRe").onclick = recheck;
@@ -66,7 +66,7 @@
       if (st) { st.disabled = !!prof.stake; w.disabled = !!prof.wallet; }
       const sv = document.getElementById("pSave"); if (sv) sv.style.display = prof.stake && prof.wallet ? "none" : "";
       const ln = document.getElementById("lockNote");
-      if (ln) ln.textContent = prof.stake || prof.wallet ? "🔒 الحقول المحفوظة مقفولة. لتعديلها تواصل مع الإدارة." : "";
+      if (ln) ln.textContent = prof.stake || prof.wallet ? "الحقول المحفوظة مقفولة. لتعديلها تواصل مع الإدارة." : "";
       paintStatus();
     });
     db.ref("verified/" + App.user.uid).on("value", (s) => { ver = s.val(); paintStatus(); });
@@ -84,9 +84,9 @@
     re.style.display = d ? "" : "none";
     tx.textContent = ok ? `موثّق ✓ — ديسكورد: ${d ? d.name : ""}`
       : !d ? "غير مربوط — اربط حساب الديسكورد"
-      : ver && ver.status === "banned" ? "⛔ حسابك محظور — بتقدر تتفرّج بس."
-      : ver && ver.status === "vpn" ? "🛡️ أوقف الـ VPN/البروكسي وحدّث الصفحة عشان يرجع توثيقك."
-      : ver && ver.status === "alt" ? "⛔ تم إيقاف توثيق حسابك بسبب تشابه مع حساب آخر. تواصل مع الإدارة لو هذا خطأ."
+      : ver && ver.status === "banned" ? "حسابك محظور — بتقدر تتفرّج بس."
+      : ver && ver.status === "vpn" ? "أوقف الـ VPN/البروكسي وحدّث الصفحة عشان يرجع توثيقك."
+      : ver && ver.status === "alt" ? "تم إيقاف توثيق حسابك بسبب تشابه مع حساب آخر. تواصل مع الإدارة لو هذا خطأ."
       : ver && ver.status === "nomember" ? `مربوط (${d.name}) بس حسابك مو موجود بالسيرفر`
       : `مربوط (${d.name}) بس ما عندك رول التوثيق`;
   }

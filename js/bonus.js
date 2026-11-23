@@ -43,11 +43,11 @@
     const timer = open && h.guessEndsAt ? `<span class="gtimer" data-end="${h.guessEndsAt}">${fmt(h.guessEndsAt - App.now())}</span>` : "";
     let body;
     if (!App.user) body = `<button class="btn primary" data-login="1">سجّل دخول بكيك للتخمين</button>`;
-    else if (App.verified === false) body = `<a class="btn primary" href="profile.html">⚠️ وثّق حسابك أولاً لتخمّن</a>`;
+    else if (App.verified === false) body = `<a class="btn primary" href="profile.html">وثّق حسابك أولاً لتخمّن</a>`;
     else if (open) body = `<div class="grow"><input type="number" inputmode="decimal" min="0" step="any" id="g-${hid}" placeholder="إجمالي الربح المتوقع ${esc(h.currency || "$")}" value="${esc(draft[hid] ?? (my ? my.value : ""))}">
         <button class="btn primary" data-guess="${hid}">${my ? "حدّث تخمينك" : "خمّن"}</button></div>`;
     else body = `<span class="hint">التخمين مقفول حالياً</span>`;
-    return `<div class="gbox"><div class="gtop"><b>🎯 تخمينك</b>${open ? `<span class="badge open">التخمين مفتوح</span>${timer}` : `<span class="badge">مقفول</span>`}</div>
+    return `<div class="gbox"><div class="gtop"><b>تخمينك</b>${open ? `<span class="badge open">التخمين مفتوح</span>${timer}` : `<span class="badge">مقفول</span>`}</div>
       ${my ? `<div class="mine">تخمينك الحالي: <b>${M(my.value, h.currency)}</b></div>` : ""}${body}
       <div class="hint">خمّن إجمالي ربح كل البونصات بعد التفتيح. تقدر تعدّل تخمينك لين ينقفل.</div></div>`;
   }
@@ -85,7 +85,7 @@
     ];
     return `<section class="hunt"><div class="hh"><h3>${esc(h.title)}</h3><span class="badge ${ph[1]}">${ph[0]}</span></div>
       <div class="tiles">${tiles.map(([k, v]) => `<div class="tile"><small>${k}</small><b>${v}</b></div>`).join("")}</div>
-      ${S.best ? `<div class="best">⭐ أفضل بونص: <b>${esc(S.best.slot)}</b> — ${M(S.best.payout, h.currency)} (${X(S.best.x)})</div>` : ""}
+      ${S.best ? `<div class="best">أفضل بونص: <b>${esc(S.best.slot)}</b> — ${M(S.best.payout, h.currency)} (${X(S.best.x)})</div>` : ""}
       ${h.phase === "ended" ? ended(hid, h) : guessBox(hid, h)}
       <h4 class="sub">البونصات</h4>${table(hid, h, S)}</section>`;
   }
@@ -96,7 +96,7 @@
     const ids = Object.keys(hunts).sort((a, b) => hunts[b].createdAt - hunts[a].createdAt);
     const list = ids.filter((id) => (tab === "past") === (hunts[id].phase === "ended"));
     root.innerHTML = list.length ? list.map((id) => card(id, hunts[id])).join("")
-      : `<div class="empty"><span class="em">🎯</span>${tab === "past" ? "لسا ما في هانت منتهي." : "لا يوجد بونص هانت نشط حالياً."}</div>`;
+      : `<div class="empty">${tab === "past" ? "لسا ما في هانت منتهي." : "لا يوجد بونص هانت نشط حالياً."}</div>`;
     root.querySelectorAll("[data-login]").forEach((b) => (b.onclick = () => App.login("bonus.html")));
     root.querySelectorAll("[data-guess]").forEach((b) => (b.onclick = () => submit(b.dataset.guess, b)));
     root.querySelectorAll("input[id^=g-]").forEach((i) => i.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(i.id.slice(2)); }));

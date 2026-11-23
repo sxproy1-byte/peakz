@@ -28,7 +28,7 @@
 
   function slot(t, s, w, sc, pay) {
     const nm = s.uid ? esc(s.name) : s.bye ? "— (راحة)" : "؟";
-    const game = s.uid && t.games && t.games[s.uid] ? `<small class="gm">🎰 ${esc(t.games[s.uid])}</small>` : "";
+    const game = s.uid && t.games && t.games[s.uid] ? `<small class="gm">${esc(t.games[s.uid])}</small>` : "";
     const val = sc !== undefined ? `<b>${t.cmp === "pay" ? (t.currency || "$") + num(pay ?? sc) : num(sc) + "x"}</b>` : "";
     return `<div class="bs ${s.uid ? "" : "e"} ${w ? "w" : ""}"><span>${nm}${game}</span>${val}</div>`;
   }
@@ -47,9 +47,9 @@
     if (!open) act = `<span class="hint">انتهى وقت التسجيل — بانتظار القرعة</span>`;
     else if (!App.user) act = `<button class="btn primary" data-login="1">سجّل دخول بكيك للدخول</button>`;
     else if (mine) act = `<span class="badge open">أنت مسجّل ✓</span>`;
-    else if (App.verified === false) act = `<a class="btn primary" href="profile.html">⚠️ وثّق حسابك أولاً</a>`;
-    else act = `<button class="btn primary" data-join="${tid}">⚔️ ادخل البطولة</button>`;
-    return `<div class="gbox"><div class="gtop"><b>🎟️ التسجيل بالبطولة (${t.max} لاعب)</b>${open ? `<span class="badge open">مفتوح</span><span class="gtimer" data-end="${g.endsAt}">${fmt(g.endsAt - App.now())}</span>` : `<span class="badge">انتهى</span>`}</div>
+    else if (App.verified === false) act = `<a class="btn primary" href="profile.html">وثّق حسابك أولاً</a>`;
+    else act = `<button class="btn primary" data-join="${tid}">ادخل البطولة</button>`;
+    return `<div class="gbox"><div class="gtop"><b>التسجيل بالبطولة (${t.max} لاعب)</b>${open ? `<span class="badge open">مفتوح</span><span class="gtimer" data-end="${g.endsAt}">${fmt(g.endsAt - App.now())}</span>` : `<span class="badge">انتهى</span>`}</div>
       <div class="hint">${n} مسجّل · الدخول من الموقع أو بكتابة الكلمة <b>${esc(g.keyword || t.keyword || "")}</b> بشات كيك. بعد ما ينتهي الوقت بنسحب ${t.max} لاعب عشوائياً وبنوزعهم بالشجرة.</div>
       <div class="row" style="margin-top:10px">${act}</div></div>`;
   }

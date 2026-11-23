@@ -70,11 +70,11 @@
     } else if (tab === "hunt") {
       html = list.length ? table(["المخمّن", "التخمينات", "المركز الأول", "بالمراكز الثلاثة", "متوسط الخطأ"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a, r.b || "—", r.c || "—", (r.d / r.a * 100).toLocaleString("en", { maximumFractionDigits: 1 }) + "%"]))) : "";
     } else {
-      html = list.length ? table(["اللاعب", "🏆 بطل", "🥈 وصيف", "🥉 ثالث"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a || "—", r.b || "—", r.c || "—"]))) : "";
+      html = list.length ? table(["اللاعب", "بطل", "وصيف", "ثالث"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a || "—", r.b || "—", r.c || "—"]))) : "";
     }
     const en = window.I18N && I18N.lang === "en", c = data.counts;
     const note = tab === "part" ? (en ? `From the last ${c.g} giveaways` : `من آخر ${c.g} مسابقة`) : tab === "hunt" ? (en ? `From ${c.h} finished bonus hunts` : `من ${c.h} بونص هانت منتهي`) : (en ? `From ${c.t} finished tournaments` : `من ${c.t} بطولة منتهية`);
-    root.innerHTML = html ? `<div class="hint" style="margin-bottom:12px">${note}</div>${html}` : '<div class="empty"><span class="em">🏆</span>ما في بيانات لسا</div>';
+    root.innerHTML = html ? `<div class="hint" style="margin-bottom:12px">${note}</div>${html}` : '<div class="empty">ما في بيانات لسا</div>';
   }
 
   App.onUser(() => render());
