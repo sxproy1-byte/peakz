@@ -152,6 +152,19 @@
         <p class="hint" style="text-align:start;margin-top:10px">الأوامر <b dir="ltr">!g</b> و<b dir="ltr">!mg</b> محجوزة للبونص هانت. كل أمر بيرد مرة كل 10 ثواني بالكثير (عشان ما يتسبّم الشات).</p>
       </div>
 
+      <div class="panel"><h2>📣 تنبيهات الديسكورد</h2>
+        <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px" id="ntState">جاري الفحص...</p>
+        <div class="row" style="margin-bottom:12px;gap:18px">
+          <label class="row" style="gap:6px"><input type="checkbox" id="nt_giveaway"> مسابقة جديدة</label>
+          <label class="row" style="gap:6px"><input type="checkbox" id="nt_hunt"> بونص هانت جديد</label>
+          <label class="row" style="gap:6px"><input type="checkbox" id="nt_tournament"> بطولة جديدة</label>
+          <label class="row" style="gap:6px"><input type="checkbox" id="nt_live"> بدء البث</label>
+        </div>
+        <div class="row" style="gap:12px;align-items:center"><label class="row" style="gap:8px">منشن: <select id="nt_ping"><option value="">بدون منشن</option><option value="here">@here</option><option value="everyone">@everyone</option></select></label>
+          <button class="btn primary small" id="ntTest">إرسال رسالة تجربة</button></div>
+        <p class="hint" style="margin-top:10px;text-align:start">التنبيه بيوصل لقناة الديسكورد اللي عملت لها Webhook. تنبيه بدء البث بيتفحص كل 5 دقائق.</p>
+      </div>
+
       <div class="panel"><h2>👥 المستخدمين <small id="uCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <div class="row" style="margin-bottom:12px"><input id="uSearch" placeholder="ابحث بالاسم / ستيك / ديسكورد..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(5,7,15,.5)">
           <button class="btn ghost small" id="uCsv">⬇️ تصدير CSV</button></div>
@@ -160,6 +173,11 @@
       </div>`;
 
     $("cSave").onclick = saveCmd;
+    ["giveaway", "hunt", "tournament", "live"].forEach((k) => ($("nt_" + k).onchange = () => db.ref("config/notify/" + k).set($("nt_" + k).checked).catch(() => App.toast("فشل الحفظ"))));
+    $("nt_ping").onchange = () => db.ref("config/notify/ping").set($("nt_ping").value).catch(() => App.toast("فشل الحفظ"));
+    $("ntTest").onclick = async () => { $("ntTest").disabled = true; try { await adminPost("/guard/notify", { type: "test" }); App.toast("انرسلت رسالة التجربة ✓"); } catch (e) { App.toast("فشل الإرسال: " + String(e.message || e).slice(0, 80)); } $("ntTest").disabled = false; };
+    db.ref("config/notify").on("value", (x) => { const c = { giveaway: true, hunt: true, tournament: true, live: true, ping: "", ...(x.val() || {}) }; ["giveaway", "hunt", "tournament", "live"].forEach((k) => ($("nt_" + k).checked = c[k] !== false)); $("nt_ping").value = c.ping || ""; });
+    db.ref("config/notifyLast").on("value", (x) => { const l = x.val(); $("ntState").innerHTML = !l ? "لسا ما انرسل أي تنبيه. أضف Webhook بالـ Worker (DISCORD_WEBHOOK_URL) وجرّب رسالة التجربة." : l.ok ? `<span class="dot on"></span> آخر تنبيه انرسل بنجاح (${esc(l.type)})` : `<span class="dot"></span> آخر محاولة فشلت: ${esc(l.error || "")}`; });
     $("uSearch").oninput = renderUsers;
     $("uCsv").onclick = exportCsv;
     ["ip", "dev", "fp", "vpn"].forEach((k) => ($("gc_" + k).onchange = saveGuardCfg));

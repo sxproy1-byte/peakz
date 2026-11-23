@@ -331,3 +331,26 @@ button.userchip:hover{border-color:var(--line2);background:rgba(255,255,255,.09)
 .lo-box{width:min(380px,100%);padding:26px 24px;border-radius:22px;background:linear-gradient(160deg,rgba(14,24,56,.98),rgba(7,11,24,.98));border:1px solid var(--line2);box-shadow:0 24px 70px rgba(0,0,0,.65);text-align:center}
 .lo-box h3{font-size:20px;margin-bottom:8px}.lo-box p{color:var(--muted);margin-bottom:20px}
 .lo-btns{display:flex;gap:10px;justify-content:center}.lo-btns .btn{min-width:130px}
+
+/* الخصوصية والشروط */
+.legal .panel{line-height:1.9}
+.legal h2{font-size:24px;margin:8px 0 4px;scroll-margin-top:90px}.legal h3{font-size:17px;margin:20px 0 6px;color:#cfe0ff}
+.legal ul{padding-inline-start:22px;display:flex;flex-direction:column;gap:7px;margin:6px 0}
+.legal p{color:#c9d6f2;margin:6px 0}.legal .upd{color:var(--muted);font-size:13px}.legal a{color:var(--b2);text-decoration:underline}
+.legal h2+p.upd+p,.legal ul+h2{margin-top:6px}.legal h2:not(:first-child){margin-top:36px;padding-top:22px;border-top:1px solid var(--line)}
+body:not(.en) .lg-en{display:none}body.en .lg-ar{display:none}
+.site-foot a{color:var(--muted);text-decoration:underline;text-underline-offset:3px;margin:0 6px}.site-foot a:hover{color:#cfe0ff}
+.tscroll{overflow-x:auto}
+.btable.lb{min-width:0}
+
+/* عداد المسابقة على الرئيسية */
+.cd{display:inline-flex;align-items:center;gap:14px;margin:0 0 18px;padding:12px 18px;border-radius:18px;background:rgba(47,107,255,.12);border:1px solid rgba(106,160,255,.35);transition:.2s;max-width:100%}
+.cd[hidden]{display:none}
+.cd:hover{background:rgba(47,107,255,.2);transform:translateY(-2px)}
+.cd-ic{font-size:26px}.cd-t{display:flex;flex-direction:column;min-width:0}.cd-t small{color:var(--muted);font-size:12px}.cd-t b{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.cd-v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:#6aa0ff;margin-inline-start:6px}
+.cd.soon{border-color:rgba(255,107,129,.55);background:rgba(255,107,129,.1)}.cd.soon .cd-v{color:var(--red);animation:cdp 1s infinite}
+@keyframes cdp{50%{opacity:.55}}
+
+.nav a{padding:11px clamp(14px,2vw,30px)}
+@media(max-width:1280px){.nav a{font-size:14.5px;gap:7px}}

@@ -23,6 +23,14 @@
     location.href = C.workerUrl + "/login" + r;
   };
   App.logout = () => auth.signOut().then(() => location.reload());
+  // تنبيه ديسكورد (للأدمن): يطلب من الـ Worker يرسل رسالة عن مسابقة/هانت/بطولة جديدة. فشله ما يأثر على الإنشاء
+  App.notify = async (type, id) => {
+    try {
+      const t = await auth.currentUser.getIdToken();
+      const r = await fetch(C.workerUrl + "/guard/notify", { method: "POST", headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" }, body: JSON.stringify({ type, id }) });
+      return await r.json().catch(() => ({}));
+    } catch (e) { return null; }
+  };
   // نافذة تأكيد تسجيل الخروج
   App.confirmLogout = () => {
     if (document.getElementById("logoutModal")) return;
@@ -146,13 +154,14 @@
     ["index.html", "🏠", "الرئيسية", "home"],
     ["giveaways.html", "🎟️", "المسابقات", "giveaways"],
     ["bonus.html", "🎯", "البونص هانت", "bonus"],
-    ["tournaments.html", "⚔️", "البطولات", "tournaments"]
+    ["tournaments.html", "⚔️", "البطولات", "tournaments"],
+    ["leaderboard.html", "🏆", "المتصدرين", "leaderboard"]
   ];
 
   App.shell = function (active) {
     if (!document.getElementById("siteFoot")) {
       const f = document.createElement("footer"); f.id = "siteFoot"; f.className = "site-foot";
-      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة`;
+      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
       document.body.appendChild(f);
     }
     const nav = document.getElementById("nav");

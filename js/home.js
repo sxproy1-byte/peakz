@@ -36,8 +36,24 @@
   }
   poll(); setInterval(poll, 60000);
 
+  let gvs = [];
+  const pad = (n) => String(n).padStart(2, "0");
+  function tickCd() {
+    const now = App.now();
+    const next = gvs.filter((g) => g.status === "open" && g.endsAt > now).sort((a, b) => a.endsAt - b.endsAt)[0];
+    const box = $("cd");
+    if (!next) { box.hidden = true; return; }
+    const t = Math.floor((next.endsAt - now) / 1000), d = Math.floor(t / 86400), h = Math.floor((t % 86400) / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+    $("cdT").textContent = next.title || "";
+    $("cdV").textContent = (d ? d + "d " : "") + pad(h) + ":" + pad(m) + ":" + pad(sec);
+    box.classList.toggle("soon", t < 600);
+    box.hidden = false;
+  }
+  setInterval(tickCd, 1000);
   db.ref("giveaways").orderByChild("createdAt").limitToLast(20).on("value", (s) => {
-    const n = Object.values(s.val() || {}).filter((g) => g.status === "open" && g.endsAt > App.now()).length;
+    gvs = Object.values(s.val() || {});
+    const n = gvs.filter((g) => g.status === "open" && g.endsAt > App.now()).length;
     $("hCount").textContent = n ? "(" + n + ")" : "";
+    tickCd();
   });
 })();

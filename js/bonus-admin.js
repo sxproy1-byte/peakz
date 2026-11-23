@@ -53,12 +53,12 @@
     const title = v("cTitle") || "بونص هانت";
     const st = v("cStart");
     try {
-      await db.ref("hunts").push({
+      const nr = await db.ref("hunts").push({
         title, currency: v("cCur") || "$", startBalance: st === "" ? null : Math.max(0, Number(st) || 0),
         prizes: [v("cP1"), v("cP2"), v("cP3")], phase: "collecting", guessOpen: false, createdAt: SV.TIMESTAMP,
       });
       ["cTitle", "cStart", "cP1", "cP2", "cP3"].forEach((id) => (document.getElementById(id).value = ""));
-      App.toast("تم إنشاء الهانت 🎯");
+      App.toast("تم إنشاء الهانت 🎯"); App.notify("hunt", nr.key);
     } catch (e) { console.error(e); App.toast("فشل الإنشاء — تأكد من قواعد Firebase"); }
   }
 

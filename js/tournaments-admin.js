@@ -56,9 +56,9 @@
     const title = v("cTitle") || "بطولة", max = Number(v("cMax")) || 16, key = (v("cKey") || C.defaultKeyword).toLowerCase(), min = Math.max(1, Number(v("cMin")) || 10);
     try {
       const g = await db.ref("giveaways").push({ title: "🏆 تسجيل: " + title, prize: "مقعد بالبطولة", keyword: key, winnersCount: max, status: "open", createdAt: SV.TIMESTAMP, endsAt: App.now() + min * 60000, tournament: true });
-      await db.ref("tournaments").push({ title, max, keyword: key, gid: g.key, cmp: "x", currency: v("cCur") || "$", prizes: [v("cP1"), v("cP2"), v("cP3")], note: v("cNote"), status: "reg", createdAt: SV.TIMESTAMP });
+      const nr = await db.ref("tournaments").push({ title, max, keyword: key, gid: g.key, cmp: "x", currency: v("cCur") || "$", prizes: [v("cP1"), v("cP2"), v("cP3")], note: v("cNote"), status: "reg", createdAt: SV.TIMESTAMP });
       ["cTitle", "cKey", "cP1", "cP2", "cP3", "cNote"].forEach((id) => (document.getElementById(id).value = ""));
-      App.toast("انفتح التسجيل بالبطولة ⚔️");
+      App.toast("انفتح التسجيل بالبطولة ⚔️"); App.notify("tournament", nr.key);
     } catch (e) { console.error(e); App.toast("فشل الإنشاء — تأكد من قواعد Firebase"); }
   }
 

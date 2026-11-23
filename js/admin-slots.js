@@ -27,7 +27,7 @@
         <div class="arow" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="ainfo"><b>السلوت كول</b> <span style="color:var(--muted)" id="onTxt"></span></div><div class="row"><button class="btn small" id="onBtn"></button></div></div>
         <div class="arow" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="ainfo"><b>كولات متعددة لكل شخص</b> <span style="color:var(--muted)" id="mTxt"></span></div><div class="row"><button class="btn small" id="mBtn"></button></div></div>
         <div class="arow" id="maxRow" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="ainfo"><b>الحد الأقصى لكل شخص</b> <span style="color:var(--muted)">عدد الكولات اللي بيقدر يحطها بنفس الوقت</span></div><div class="row"><div class="field" style="margin:0;width:90px"><input id="maxN" type="number" min="1" max="20"></div><button class="btn ghost small" id="maxSave">حفظ</button></div></div>
-        <div class="hint">أمر الشات: <bdi dir="ltr"><b>!sr</b></bdi> متبوعاً باسم اللعبة — البوت بيرد عليه بتأكيد الحفظ. لما تقفل السلوت كول البوت بيقول إنه مقفول.</div>
+        <div class="hint">أمر الشات: <span dir="ltr" style="unicode-bidi:isolate"><b>!sr</b></span> متبوعاً باسم اللعبة — البوت بيرد عليه بتأكيد الحفظ. لما تقفل السلوت كول البوت بيقول إنه مقفول.</div>
       </div>
       <div class="panel"><h2>➕ إضافة كول يدوياً</h2><div class="form">
         <div class="field"><label>اسم المشاهد</label><input id="mUser" maxlength="30" autocomplete="off"></div>
@@ -52,7 +52,7 @@
 
   function renderCfg() {
     const on = cfg.on === true, multi = cfg.multi === true;
-    $("onTxt").innerHTML = on ? "— شغّال، المشاهدين بيقدروا يكتبوا <bdi dir=\"ltr\">!sr</bdi>" : "— مقفول";
+    $("onTxt").innerHTML = on ? "— شغّال، المشاهدين بيقدروا يكتبوا <span dir=\"ltr\" style=\"unicode-bidi:isolate\">!sr</span>" : "— مقفول";
     $("onBtn").textContent = on ? "⏹ إيقاف" : "▶ تشغيل"; $("onBtn").className = "btn small " + (on ? "danger" : "primary");
     $("mTxt").textContent = multi ? "— شغّال" : "— مطفي: كول واحد لكل شخص";
     $("mBtn").textContent = multi ? "إيقاف المتعدد" : "تشغيل المتعدد"; $("mBtn").className = "btn small " + (multi ? "danger" : "primary");

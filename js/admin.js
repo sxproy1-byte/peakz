@@ -67,7 +67,7 @@
       status: "open", createdAt: SV.TIMESTAMP,
       endsAt: App.now() + min * 60000,
     };
-    try { await db.ref("giveaways").push(g); App.toast("انطلقت المسابقة 🎉"); }
+    try { const nr = await db.ref("giveaways").push(g); App.toast("انطلقت المسابقة 🎉"); App.notify("giveaway", nr.key); }
     catch (e) { console.error(e); App.toast("فشل الإنشاء — تأكد من قواعد Firebase وصلاحية الأدمن"); }
   }
   const val = (id) => document.getElementById(id).value;
