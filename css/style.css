@@ -490,3 +490,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--b1)!important;outline
 .bdmore{margin-top:14px}.bdmore summary{cursor:pointer;color:var(--muted);font-size:13px;margin-bottom:10px}
 td .gold,.gold{color:var(--gold)}
 @media(max-width:560px){.lvrow{flex-direction:column;align-items:stretch}.lvnum{width:100%;height:64px;grid-auto-flow:column;gap:10px}}
+
+/* بروفايل عام + تخصيص */
+.uprof{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.ubanner{height:150px;background:var(--line) center/cover no-repeat}
+.uhead{display:flex;align-items:flex-end;gap:16px;padding:0 22px 18px;margin-top:-44px;position:relative}
+.uav{width:96px;height:96px;border-radius:12px;object-fit:cover;border:3px solid var(--bg2);background:var(--line2);flex:none;display:grid;place-items:center;font-size:36px;font-weight:700}
+.uinfo{flex:1;min-width:0;padding-top:50px}
+.uname{font-size:26px;font-weight:700;line-height:1.2;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.ubio{color:var(--muted);margin-top:4px;font-size:14px;overflow-wrap:anywhere}
+.ulv{border:2px solid var(--gold);border-radius:10px;padding:6px 14px;text-align:center;flex:none}.ulv b{display:block;font-size:26px;color:var(--gold);line-height:1.1}.ulv small{color:var(--muted);font-size:11px}
+.kbs{display:inline-flex;gap:6px;flex-wrap:wrap}
+.kb{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:5px;font:700 11.5px/1.6 "Inter",sans-serif;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 10%,transparent);direction:ltr}
+.kb i{width:7px;height:7px;border-radius:2px;background:var(--c)}
+.csprev{position:relative;margin-bottom:34px}.csprev .ubanner{height:110px;border-radius:10px}
+.csav{position:absolute;inset-inline-start:16px;bottom:-30px;width:70px;height:70px;border-radius:10px;border:3px solid var(--bg2);background:var(--line2) center/cover no-repeat;display:grid;place-items:center;font-size:26px;font-weight:700}
+.panel h2 .btn{margin-inline-start:10px;vertical-align:middle}
+@media(max-width:560px){.uhead{flex-wrap:wrap}.uav{width:80px;height:80px}.uinfo{padding-top:0;flex-basis:100%;order:3}.ulv{margin-inline-start:auto}}

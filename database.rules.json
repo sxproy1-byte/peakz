@@ -133,6 +133,27 @@
       ".indexOn": [
         "xp"
       ]
+    },
+    "cosmetics": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth.token.admin === true || (auth.uid === $uid && root.child('bans').child(auth.uid).child('active').val() !== true)",
+        "avatar": {
+          ".validate": "newData.isString() && newData.val().length < 60000 && newData.val().beginsWith('data:image/jpeg;base64,')"
+        },
+        "banner": {
+          ".validate": "newData.isString() && newData.val().length < 160000 && newData.val().beginsWith('data:image/jpeg;base64,')"
+        },
+        "bio": {
+          ".validate": "newData.isString() && newData.val().length <= 80"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": "false"
+        }
+      }
     }
   }
 }

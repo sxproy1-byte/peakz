@@ -65,7 +65,7 @@
   function render() {
     if (!data) return;
     const me = App.user ? App.user.uid : null;
-    const tr = (i, r, cells) => `<tr class="${i < 3 ? "hot" : ""} ${r.uid === me ? "next" : ""}"><td>${medal(i)}</td><td><b>${esc(r.name)}</b></td>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+    const tr = (i, r, cells) => `<tr class="${i < 3 ? "hot" : ""} ${r.uid === me ? "next" : ""}"><td>${medal(i)}</td><td><b>${/^kick_\d+$/.test(r.uid) ? `<a href="user.html?id=${r.uid}">${esc(r.name)}</a>` : esc(r.name)}</b></td>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
     let html = "", list = data[tab];
     if (tab === "lvl") {
       html = list.length ? table(["المتفاعل", "المستوى", "الخبرة", "الاشتراك"], list.slice(0, TOP).map((r, i) => tr(i, r, [`<b class="gold">${Lv.levelOf(r.xp)}</b>`, r.xp.toLocaleString("en"), r.subMonths ? r.subMonths + " شهر" : "—"]))) : "";

@@ -39,6 +39,15 @@
     if (started) return; started = true;
     root.innerHTML = `
       <h1 class="plain">ملفي الشخصي</h1>
+      <div class="panel" id="csPanel"><h2>تخصيص البروفايل <a class="btn ghost small" id="csView" href="user.html?id=${esc(App.user.uid)}">عرض بروفايلي</a></h2>
+        <div class="csprev"><div class="ubanner" id="csBn"></div><div class="csav" id="csAv"></div></div>
+        <div class="row" style="margin:12px 0;gap:8px;flex-wrap:wrap">
+          <label class="btn ghost small">تغيير الصورة<input type="file" id="csAvF" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
+          <label class="btn ghost small">تغيير البانر<input type="file" id="csBnF" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
+          <button class="btn ghost small" id="csRm">إزالة التخصيص</button></div>
+        <div class="field"><label>نبذة قصيرة (حتى 80 حرف)</label><input id="csBio" maxlength="80" placeholder="اكتب شي عنك..." autocomplete="off"></div>
+        <div style="margin-top:12px"><button class="btn primary" id="csSave">حفظ</button></div>
+        <p class="hint" style="text-align:start;margin-top:12px">اسمك وبادجاتك من كيك (OG وVIP وغيرها) بتظهر دايماً جنب اسمك وما بتتغير. الصور بتنقص بحجمها تلقائياً. ممنوع المحتوى المسيء، والإدارة بتحذف أي صورة مخالفة.</p></div>
       <div class="panel" id="lvPanel"><h2>مستواي</h2><div class="hint" id="lvBox">جاري التحميل...</div></div>
       <div class="panel" id="bdPanel"><h2>بادجاتي <small id="bdCount"></small></h2><div id="bdBox" class="bdgs"></div>
         <details class="bdmore"><summary>كل البادجات</summary><div id="bdAll" class="bdgs"></div></details></div>
@@ -75,6 +84,35 @@
     db.ref("verified/" + App.user.uid).on("value", (s) => { ver = s.val(); paintStatus(); });
     recheck(true);
     paintLevel();
+    initCos();
+  }
+
+  // تخصيص البروفايل
+  let csNew = {};
+  function initCos() {
+    const uid = App.user.uid, $ = (x) => document.getElementById(x);
+    const paint = (cs) => {
+      cs = cs || {};
+      $("csBn").style.backgroundImage = Cos.ok(csNew.banner || cs.banner) ? `url('${csNew.banner || cs.banner}')` : "";
+      const av = Cos.ok(csNew.avatar || cs.avatar) ? csNew.avatar || cs.avatar : App.user.avatar || "";
+      $("csAv").style.backgroundImage = av ? `url('${av.replace(/'/g, "")}')` : "";
+      $("csAv").textContent = av ? "" : (App.user.name || "?")[0].toUpperCase();
+    };
+    let cur = {};
+    db.ref("cosmetics/" + uid).once("value").then((s) => { cur = s.val() || {}; if (document.activeElement !== $("csBio")) $("csBio").value = typeof cur.bio === "string" ? cur.bio : ""; paint(cur); }).catch(() => {});
+    const pick = (inp, key, dim) => ($(inp).onchange = async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try { csNew[key] = await Cos.toDataUrl(f, dim[0], dim[1], dim[2]); paint(cur); App.toast("جاهزة، اضغط حفظ"); }
+      catch (err) { App.toast(String(err.message) === "size" ? "الصورة كبيرة، جرّب صورة ثانية" : "نوع الصورة غير مدعوم"); }
+      e.target.value = "";
+    });
+    pick("csAvF", "avatar", Cos.AV); pick("csBnF", "banner", Cos.BN);
+    $("csSave").onclick = async () => {
+      const up = { updatedAt: firebase.database.ServerValue.TIMESTAMP }, bio = $("csBio").value.replace(/<[^>]*>/g, "").replace(/[<>"&]/g, "").trim().slice(0, Cos.BIO);
+      if (csNew.avatar) up.avatar = csNew.avatar; if (csNew.banner) up.banner = csNew.banner; up.bio = bio;
+      try { await db.ref("cosmetics/" + uid).update(up); cur = { ...cur, ...up }; csNew = {}; App.toast("تم الحفظ ✓"); } catch (e) { console.error(e); App.toast("فشل الحفظ"); }
+    };
+    $("csRm").onclick = async () => { if (!confirm("تحذف الصورة والبانر والنبذة؟")) return; try { await db.ref("cosmetics/" + uid).remove(); cur = {}; csNew = {}; $("csBio").value = ""; paint({}); App.toast("تم"); } catch (e) { App.toast("فشل"); } };
   }
 
   // اللفل والبادجات
@@ -89,7 +127,7 @@
         <div class="lvmain"><div class="lvtop"><span>${xp.toLocaleString("en")} XP</span><span class="m">${pr.level >= Lv.MAX ? "المستوى الأقصى" : "باقي " + pr.left.toLocaleString("en") + " للمستوى " + (pr.level + 1)}</span></div>
           <div class="bar"><i style="width:${pr.pct}%"></i></div>
           <div class="lvstats"><span>الرتبة <b>${i >= 0 ? `<span dir="ltr" style="unicode-bidi:isolate">#${i + 1}</span>` : "—"}</b></span><span>الرسائل <b>${stats.msgs.toLocaleString("en")}</b></span><span>ساعات التواجد <b>${stats.hours}</b></span><span>الاشتراك <b>${stats.subMonths ? stats.subMonths + " شهر" : "—"}</b></span></div></div></div>
-        <p class="hint" style="text-align:start;margin-top:12px">النقاط من الرسائل بالبث، وتواجدك أثناء البث، واشتراكك بالقناة (كل شهر اشتراك بيرفعك). الأوامر بالشات <span dir="ltr" style="unicode-bidi:isolate">!level</span> <span dir="ltr" style="unicode-bidi:isolate">!top</span></p>`;
+        <p class="hint" style="text-align:start;margin-top:12px">النقاط من الرسائل بالبث، وتواجدك أثناء البث، واشتراكك بالقناة (كل شهر اشتراك بيرفعك). الأوامر بالشات <span dir="ltr" style="unicode-bidi:isolate">!level &nbsp;·&nbsp; !top</span></p>`;
       const all = Lv.badges(stats), got = all.filter((b) => b.ok);
       document.getElementById("bdCount").innerHTML = `<span dir="ltr" style="unicode-bidi:isolate">${got.length} / ${all.length}</span>`;
       document.getElementById("bdBox").innerHTML = got.length ? Lv.html(got, esc) : '<div class="hint">لسا ما عندك بادجات — شارك وخمّن وتفاعل بالبث</div>';

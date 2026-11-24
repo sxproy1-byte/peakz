@@ -162,6 +162,7 @@
     chev: svg('<path d="m6 9 6 6 6-6"/>'),
     gear: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     grid: svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+    user: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>'),
     out: svg('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'),
   };
   // الصفحات: [الرابط، الأيقونة، الاسم، المفتاح، وصف قصير]
@@ -232,6 +233,7 @@
     box.innerHTML = `<div class="uwrap">
         <button type="button" class="userchip ${verLabel(u) === "غير موثّق" ? "unv" : ""}" id="uchip" aria-haspopup="true" aria-expanded="false">${av}<div class="un"><b>${esc(u.name)}</b><small>${u.admin ? "أدمن · " : ""}${verLabel(u)}</small></div>${NI.chev}</button>
         <div class="umenu" id="umenu" hidden>
+          <a href="user.html?id=${esc(u.uid)}" class="uitem">${NI.user}<span>بروفايلي</span></a>
           <a href="profile.html" class="uitem">${NI.gear}<span>الإعدادات</span></a>
           ${u.admin ? `<a href="admin.html" class="uitem">${NI.grid}<span>لوحة التحكم</span></a>` : ""}
           <div class="usep"></div>
