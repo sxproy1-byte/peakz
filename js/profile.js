@@ -120,7 +120,7 @@
     const uid = App.user.uid, box = document.getElementById("lvBox");
     try {
       const [lv, st, tops] = await Promise.all([Lv.loadLevel(uid), Lv.loadStats(uid).catch(() => ({})), Lv.top(200).catch(() => [])]);
-      const xp = lv.xp || 0, pr = Lv.progress(xp), i = tops.findIndex((x) => x.uid === uid);
+      const xp = lv.xp || 0, pr = Lv.progress(xp), i = xp > 0 ? tops.findIndex((x) => x.uid === uid) : -1;
       const stats = { ...st, level: pr.level, ab: lv.ab, subMonths: lv.subMonths || 0, msgs: lv.msgs || 0, hours: Math.floor((lv.mins || 0) / 60) };
       box.className = "";
       box.innerHTML = `<div class="lvrow"><div class="lvnum"><b>${pr.level}</b><small>المستوى</small></div>

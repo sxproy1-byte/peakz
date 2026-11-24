@@ -88,7 +88,10 @@
   async function loadLevel(uid) { return (await App.db.ref("levels/" + uid).once("value").then((s) => s.val()).catch(() => null)) || {}; }
   async function top(n) {
     const s = await App.db.ref("levels").orderByChild("xp").limitToLast(n || 50).once("value");
-    const a = Object.entries(s.val() || {}).map(([k, v]) => ({ uid: k, name: (v && v.name) || k, xp: (v && v.xp) || 0, subMonths: (v && v.subMonths) || 0 }));
+    const a = Object.entries(s.val() || {}).map(([k, v]) => ({ uid: k, name: (v && v.name) || "", xp: (v && v.xp) || 0, subMonths: (v && v.subMonths) || 0 }));
+    // سجلات بلا اسم (مثلاً انعمل لها بادج يدوي): منجيب الاسم من users
+    await Promise.all(a.filter((r) => !r.name).map((r) => App.db.ref("users/" + r.uid + "/name").once("value").then((x) => { r.name = x.val() || ""; }).catch(() => {})));
+    a.forEach((r) => { if (!r.name) r.name = r.uid; });
     return a.sort((x, y) => y.xp - x.xp);
   }
   window.Lv = { MAX, xpFor, levelOf, progress, DEFS, badges, html, loadStats, loadLevel, top };

@@ -12,7 +12,7 @@
     if (!u && !lv.xp) { root.innerHTML = '<div class="empty">بروفايل غير موجود</div>'; return; }
     const cs = { ...(cs0 || {}) }; if (!Cos.ok(cs.avatar)) delete cs.avatar; if (!Cos.ok(cs.banner)) delete cs.banner; if (typeof cs.bio !== "string") delete cs.bio;
     const name = (u && u.name) || lv.name || id, av = cs.avatar || (u && u.avatar) || "";
-    const xp = lv.xp || 0, pr = Lv.progress(xp), i = tops.findIndex((x) => x.uid === id);
+    const xp = lv.xp || 0, pr = Lv.progress(xp), i = xp > 0 ? tops.findIndex((x) => x.uid === id) : -1;
     const stats = { ...st, level: pr.level, ab: lv.ab, subMonths: lv.subMonths || 0, msgs: lv.msgs || 0, hours: Math.floor((lv.mins || 0) / 60) };
     const all = Lv.badges(stats), got = all.filter((b) => b.ok);
     const adm = App.user && App.user.admin;

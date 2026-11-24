@@ -21,7 +21,7 @@
     $("q").oninput = list;
     db.ref("users").on("value", (s) => { users = s.val() || {}; list(); });
     db.ref("levels").on("value", (s) => { levels = s.val() || {}; list(); if (id && !$("ed").dataset.id) edit(id); });
-    if (id) edit(id);
+    if (id) db.ref("users/" + id).once("value").then((s) => { users[id] = users[id] || s.val() || {}; edit(id); });
   }
   const nm = (uid) => (users[uid] || {}).name || (levels[uid] || {}).name || uid;
   function list() {
@@ -76,9 +76,9 @@
     $("eX").oninput = () => { $("eL").value = Lv.levelOf(Math.max(0, parseInt($("eX").value, 10) || 0)); };
     const num = (x, d) => Math.max(0, Number($(x).value) || d || 0);
     $("eSave").onclick = () => db.ref("levels/" + uid).update({ name: nm(uid), xp: Math.floor(num("eX")), subMonths: Math.min(120, Math.floor(num("eS"))), msgs: Math.floor(num("eM")), mins: Math.round(num("eH") * 60) }).then(() => toast("تم الحفظ ✓")).catch(fail);
-    $("eReset").onclick = () => confirm("تصفّر اللفل (XP والرسائل والتواجد) لـ " + nm(uid) + "؟") && db.ref("levels/" + uid).update({ xp: 0, msgs: 0, mins: 0, dm: 0, dp: 0 }).then(() => { toast("تم"); edit(uid); }).catch(fail);
+    $("eReset").onclick = () => confirm("تصفّر اللفل (XP والرسائل والتواجد) لـ " + nm(uid) + "؟") && db.ref("levels/" + uid).update({ name: nm(uid), xp: 0, msgs: 0, mins: 0, dm: 0, dp: 0 }).then(() => { toast("تم"); edit(uid); }).catch(fail);
     // بادجات يدوية
-    $("abAdd").onclick = () => { const n = $("abN").value.replace(/[<>"&]/g, "").trim().slice(0, 24); if (!n) return toast("اكتب اسم البادج"); db.ref("levels/" + uid + "/ab").push({ n, t: Number($("abT").value) || 1 }).then(() => { toast("تمت الإضافة ✓"); edit(uid); }).catch(fail); };
+    $("abAdd").onclick = () => { const n = $("abN").value.replace(/[<>"&]/g, "").trim().slice(0, 24); if (!n) return toast("اكتب اسم البادج"); db.ref("levels/" + uid + "/name").set(nm(uid)).then(() => db.ref("levels/" + uid + "/ab").push({ n, t: Number($("abT").value) || 1 })).then(() => { toast("تمت الإضافة ✓"); edit(uid); }).catch(fail); };
     ed.querySelectorAll("[data-rm]").forEach((b) => (b.onclick = () => db.ref("levels/" + uid + "/ab/" + b.dataset.rm).remove().then(() => edit(uid)).catch(fail)));
     // التخصيص
     const pick = (inp, key, dim) => ($(inp).onchange = async (e) => { const f = e.target.files[0]; if (!f) return; try { newImg[key] = await Cos.toDataUrl(f, dim[0], dim[1], dim[2]); paint(cs); toast("جاهزة، اضغط حفظ"); } catch (err) { toast("الصورة غير مدعومة أو كبيرة"); } e.target.value = ""; });
