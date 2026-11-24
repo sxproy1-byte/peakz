@@ -122,7 +122,7 @@
     if (started) return;
     started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
 
       <div class="panel"><h2>🕵️ Alts — الحسابات المكررة <small id="altsCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <p class="hint" style="text-align:start;margin-bottom:12px">أي حسابين بنفس يوزر ستيك / عنوان المحفظة / الديسكورد، أو بنفس الـ IP أو نفس الجهاز، بينلغى توثيقهم تلقائياً وبيظهروا بالجدول. <b>حظر</b>: بيقدر يتفرّج بس، وكل حساباته المرتبطة بتنحظر معه. بعد <b>فك الحظر</b> عن حساب، أي حساب جديد بنفس الجهاز/الـ IP بينحظر لحاله. لو الحسابين لأشخاص مختلفين فعلاً (إخوة بنفس البيت مثلاً) اضغط <b>اعتماد</b>.</p>
@@ -214,7 +214,7 @@
       <td>${esc(r.kick)}</td><td>${tag(r)}</td><td>${esc(r.discord) || "—"}</td><td dir="ltr">${esc(r.stake) || "—"}</td>
       <td dir="ltr">${r.wallet ? `<span class="wal">${shown.has(r.uid) ? esc(r.wallet) : mask(r.wallet)}</span>
         <button class="btn ghost small" data-eye="${r.uid}">${shown.has(r.uid) ? "إخفاء" : "إظهار"}</button><button class="btn ghost small" data-copy="${esc(r.wallet)}">نسخ</button>` : "—"}</td>
-      <td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn primary small" data-edit="${r.uid}">تعديل</button>${isBanned(r.uid) ? `<button class="btn ghost small" data-unban="${r.uid}">فك الحظر</button>` : `<button class="btn danger small" data-ban="${r.uid}">حظر</button>`}</div></td></tr>`).join("")
+      <td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn primary small" data-edit="${r.uid}">تعديل</button><a class="btn ghost small" href="admin-profiles.html?id=${r.uid}">البروفايل</a>${isBanned(r.uid) ? `<button class="btn ghost small" data-unban="${r.uid}">فك الحظر</button>` : `<button class="btn danger small" data-ban="${r.uid}">حظر</button>`}</div></td></tr>`).join("")
       : `<tr><td colspan="6" class="msg">لا يوجد نتائج</td></tr>`;
     body.querySelectorAll("[data-eye]").forEach((b) => (b.onclick = () => { const k = b.dataset.eye; shown.has(k) ? shown.delete(k) : shown.add(k); renderUsers(); }));
     bindBanBtns(body);

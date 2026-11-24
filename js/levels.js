@@ -45,7 +45,7 @@
     ["lvl", "level", 50, 3, "لفل 50", "وصلت المستوى 50"],
     ["lvl", "level", 100, 4, "لفل 100", "المستوى الأقصى"],
   ];
-  const badges = (s) => DEFS.map(([cat, f, n, tier, name, desc]) => ({ cat, tier, name, desc, need: n, have: Number(s[f]) || 0, ok: (Number(s[f]) || 0) >= n }));
+  const badges = (s) => [...Object.values(s.ab || {}).filter((x) => x && x.n).map((x) => ({ cat: "x", tier: Math.min(4, Math.max(1, Number(x.t) || 1)), name: String(x.n), desc: "", need: 0, have: 0, ok: true })), ...DEFS.map(([cat, f, n, tier, name, desc]) => ({ cat, tier, name, desc, need: n, have: Number(s[f]) || 0, ok: (Number(s[f]) || 0) >= n }))];
   const shield = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.4 3.1 8 7.5 9.5 4.4-1.5 7.5-5.1 7.5-9.5V6z"/></svg>';
   const html = (list, esc) => list.map((b) => `<div class="bdg t${b.tier} ${b.ok ? "ok" : "lock"}" title="${esc(b.desc)}${b.ok ? "" : " — " + Math.min(b.have, b.need) + "/" + b.need}">${shield}<span>${esc(b.name)}</span></div>`).join("");
 

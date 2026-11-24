@@ -129,7 +129,7 @@
     },
     "levels": {
       ".read": true,
-      ".write": false,
+      ".write": "auth.token.admin === true",
       ".indexOn": [
         "xp"
       ]

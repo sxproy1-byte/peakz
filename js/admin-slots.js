@@ -21,7 +21,7 @@
   function start() {
     if (started) return; started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html" class="on">🎰 السلوت كول</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html" class="on">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
       ${App.overlayPanel("overlay-slots.html", "السلوت كول", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة). بيعرض اللعبة الحالية وقائمة الكولات.")}
       <div class="panel"><h2>🎰 الإعدادات</h2>
         <div class="arow" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div class="ainfo"><b>السلوت كول</b> <span style="color:var(--muted)" id="onTxt"></span></div><div class="row"><button class="btn small" id="onBtn"></button></div></div>

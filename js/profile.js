@@ -121,7 +121,7 @@
     try {
       const [lv, st, tops] = await Promise.all([Lv.loadLevel(uid), Lv.loadStats(uid).catch(() => ({})), Lv.top(200).catch(() => [])]);
       const xp = lv.xp || 0, pr = Lv.progress(xp), i = tops.findIndex((x) => x.uid === uid);
-      const stats = { ...st, level: pr.level, subMonths: lv.subMonths || 0, msgs: lv.msgs || 0, hours: Math.floor((lv.mins || 0) / 60) };
+      const stats = { ...st, level: pr.level, ab: lv.ab, subMonths: lv.subMonths || 0, msgs: lv.msgs || 0, hours: Math.floor((lv.mins || 0) / 60) };
       box.className = "";
       box.innerHTML = `<div class="lvrow"><div class="lvnum"><b>${pr.level}</b><small>المستوى</small></div>
         <div class="lvmain"><div class="lvtop"><span>${xp.toLocaleString("en")} XP</span><span class="m">${pr.level >= Lv.MAX ? "المستوى الأقصى" : "باقي " + pr.left.toLocaleString("en") + " للمستوى " + (pr.level + 1)}</span></div>
