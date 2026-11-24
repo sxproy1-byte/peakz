@@ -24,7 +24,7 @@
   function render() {
     const p = pick();
     if (!p) {
-      if (lastSig !== "none") { lastSig = "none"; card.innerHTML = `<div class="top"><img src="img/logo.png" alt=""><span class="tag">${esc(C.siteName)}</span></div><div class="none"><div class="ic">🎯</div><b>لا يوجد بونص هانت حالياً</b><small>ترقّبوا الهانت القادم</small></div>`; }
+      if (lastSig !== "none") { lastSig = "none"; card.innerHTML = `<div class="top"><img src="img/logo.png" alt=""><span class="tag">${esc(C.siteName)}</span></div><div class="none"><b>لا يوجد بونص هانت حالياً</b><small>ترقّبوا الهانت القادم</small></div>`; }
       return;
     }
     const [hid, h] = p, S = Hunt.stats(h.bonuses, h.startBalance), cur = h.currency || "$", opening = h.phase === "opening", ended = h.phase === "ended";
@@ -44,7 +44,7 @@
         ? T("", "رصيد البداية", M(h.startBalance, cur)) + T("be", "للتعادل (BE)", X(S.beX)) + (opening || ended ? (S.profit !== null ? T(S.profit >= 0 ? "up" : "down", "ربح / خسارة", M(S.profit, cur)) : T("", "الربح", M(S.totalWin, cur))) : T("", "مجموع الرهانات", M(S.totalBets, cur)))
         : T("", "البونصات", S.count) + T("", "مجموع الرهانات", M(S.totalBets, cur)) + (opening || ended ? T("", "إجمالي الربح", M(S.totalWin, cur)) : T("", "متوسط الرهان", M(S.count ? S.totalBets / S.count : null, cur)));
       card.innerHTML = `<div class="top"><img src="img/logo.png" alt=""><span class="tag"><i class="dot ${opening ? "wait" : ""}"></i>${opening ? "جاري التفتيح" : ended ? "انتهى الهانت" : "جمع البونصات"}</span><span class="sp tag" id="gs"></span></div>
-        <h1>🎯 ${esc(h.title)}</h1>
+        <h1>${esc(h.title)}</h1>
         <div class="stats">${tiles}</div>
         <div class="glance"><span>البونصات <b>${opening || ended ? S.openedCount + "/" + S.count : S.count}</b></span>${opening || ended ? `<span>الإجمالي <b>${M(S.totalWin, cur)}</b></span><span>متوسط <b>${X(S.avgX)}</b></span>` : `<span>مجموع الرهانات <b>${M(S.totalBets, cur)}</b></span>`}</div>
         <div class="lst" id="lst">${rows || '<div class="row" style="grid-template-columns:1fr;text-align:center;color:#9fb0d6">لسا ما انضاف أي بونص</div>'}</div>`;

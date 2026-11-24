@@ -38,7 +38,7 @@
     if (!items.length) {
       const k = "none";
       if (lastKey !== k) { lastKey = k; card.innerHTML = `<div class="top"><img src="img/logo.png" alt=""><span class="tag">${esc(C.siteName)}</span></div>
-        <div class="none"><div class="ic">🎁</div><b>لا يوجد مسابقات نشطة حالياً</b><small>ترقّبوا المسابقة القادمة</small></div>`; }
+        <div class="none"><b>لا يوجد مسابقات نشطة حالياً</b><small>ترقّبوا المسابقة القادمة</small></div>`; }
       return;
     }
     idx = idx % items.length;
@@ -51,7 +51,7 @@
       card.innerHTML = `
         <div class="top"><img src="img/logo.png" alt=""><span class="tag"><i class="dot ${state === "wait" ? "wait" : ""}"></i>${state === "wait" ? "انتهى الدخول — بانتظار السحب" : "مسابقة جارية الآن"}</span></div>
         <h1>${esc(g.title)}</h1>
-        <div class="prize">${g.prize ? "🎁 " + esc(g.prize) : "&nbsp;"}</div>
+        <div class="prize">${g.prize ? esc(g.prize) : "&nbsp;"}</div>
         <div class="stats">
           <div class="st"><b>${esc(g.winnersCount)}</b><small>${g.winnersCount > 1 ? "فائزين" : "فائز"}</small></div>
           <div class="st time"><b id="oTime">--:--</b><small>الوقت المتبقي</small></div>
