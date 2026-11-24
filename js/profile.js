@@ -39,6 +39,9 @@
     if (started) return; started = true;
     root.innerHTML = `
       <h1 class="plain">ملفي الشخصي</h1>
+      <div class="panel" id="lvPanel"><h2>مستواي</h2><div class="hint" id="lvBox">جاري التحميل...</div></div>
+      <div class="panel" id="bdPanel"><h2>بادجاتي <small id="bdCount"></small></h2><div id="bdBox" class="bdgs"></div>
+        <details class="bdmore"><summary>كل البادجات</summary><div id="bdAll" class="bdgs"></div></details></div>
       <div class="panel"><h2>توثيق الحساب (ديسكورد)</h2>
         <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px"><span class="dot" id="vDot"></span> <span id="vText">جاري الفحص...</span></p>
         <p class="hint" style="text-align:start;margin-bottom:14px">لازم تربط حسابك بالديسكورد وتكون موثّق بسيرفرنا (عندك رول التوثيق) عشان تقدر تدخل المسابقات. <b>بعد الربط ما بتقدر تغيّره</b> (الحسابات المتعددة ممنوعة)، وأي تعديل لازم يتم عن طريق الإدارة.</p>
@@ -71,6 +74,27 @@
     });
     db.ref("verified/" + App.user.uid).on("value", (s) => { ver = s.val(); paintStatus(); });
     recheck(true);
+    paintLevel();
+  }
+
+  // اللفل والبادجات
+  async function paintLevel() {
+    const uid = App.user.uid, box = document.getElementById("lvBox");
+    try {
+      const [lv, st, tops] = await Promise.all([Lv.loadLevel(uid), Lv.loadStats(uid).catch(() => ({})), Lv.top(200).catch(() => [])]);
+      const xp = lv.xp || 0, pr = Lv.progress(xp), i = tops.findIndex((x) => x.uid === uid);
+      const stats = { ...st, level: pr.level, subMonths: lv.subMonths || 0, msgs: lv.msgs || 0, hours: Math.floor((lv.mins || 0) / 60) };
+      box.className = "";
+      box.innerHTML = `<div class="lvrow"><div class="lvnum"><b>${pr.level}</b><small>المستوى</small></div>
+        <div class="lvmain"><div class="lvtop"><span>${xp.toLocaleString("en")} XP</span><span class="m">${pr.level >= Lv.MAX ? "المستوى الأقصى" : "باقي " + pr.left.toLocaleString("en") + " للمستوى " + (pr.level + 1)}</span></div>
+          <div class="bar"><i style="width:${pr.pct}%"></i></div>
+          <div class="lvstats"><span>الرتبة <b>${i >= 0 ? `<span dir="ltr" style="unicode-bidi:isolate">#${i + 1}</span>` : "—"}</b></span><span>الرسائل <b>${stats.msgs.toLocaleString("en")}</b></span><span>ساعات التواجد <b>${stats.hours}</b></span><span>الاشتراك <b>${stats.subMonths ? stats.subMonths + " شهر" : "—"}</b></span></div></div></div>
+        <p class="hint" style="text-align:start;margin-top:12px">النقاط من الرسائل بالبث، وتواجدك أثناء البث، واشتراكك بالقناة (كل شهر اشتراك بيرفعك). الأوامر بالشات <span dir="ltr" style="unicode-bidi:isolate">!level</span> <span dir="ltr" style="unicode-bidi:isolate">!top</span></p>`;
+      const all = Lv.badges(stats), got = all.filter((b) => b.ok);
+      document.getElementById("bdCount").innerHTML = `<span dir="ltr" style="unicode-bidi:isolate">${got.length} / ${all.length}</span>`;
+      document.getElementById("bdBox").innerHTML = got.length ? Lv.html(got, esc) : '<div class="hint">لسا ما عندك بادجات — شارك وخمّن وتفاعل بالبث</div>';
+      document.getElementById("bdAll").innerHTML = Lv.html(all.filter((b) => !b.ok), esc);
+    } catch (e) { console.error(e); box.textContent = "تعذّر تحميل المستوى"; }
   }
 
   function paintStatus() {

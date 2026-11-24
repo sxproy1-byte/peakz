@@ -126,6 +126,13 @@
       "$tid": {
         ".write": "auth.token.admin === true"
       }
+    },
+    "levels": {
+      ".read": true,
+      ".write": false,
+      ".indexOn": [
+        "xp"
+      ]
     }
   }
 }

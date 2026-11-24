@@ -3,7 +3,7 @@
   const { db, esc } = App;
   App.shell("leaderboard");
   const root = document.getElementById("lb");
-  let tab = "part", data = null;
+  let tab = "lvl", data = null;
   const TOP = 20;
   const medal = (i) => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1);
   const bump = (m, uid, name, f) => { const r = m[uid] || (m[uid] = { uid, name: name || uid, a: 0, b: 0, c: 0, d: 0 }); if (name) r.name = name; f(r); };
@@ -48,7 +48,9 @@
       if (f.runnerUp) bump(tour, f.runnerUp.uid, f.runnerUp.name, (r) => r.b++);     // b = وصيف
       if (f.third) bump(tour, f.third.uid, f.third.name, (r) => r.c++);              // c = ثالث
     });
+    const lvl = await Lv.top(TOP).catch(() => []);
     data = {
+      lvl,
       part: Object.values(part).sort((x, y) => y.a - x.a || y.b - x.b || (x.name < y.name ? -1 : 1)),
       hunt: Object.values(hunt).sort((x, y) => y.b - x.b || y.c - x.c || x.d / x.a - y.d / y.a || y.a - x.a),
       tour: Object.values(tour).sort((x, y) => y.a - x.a || y.b - x.b || y.c - x.c),
@@ -65,7 +67,9 @@
     const me = App.user ? App.user.uid : null;
     const tr = (i, r, cells) => `<tr class="${i < 3 ? "hot" : ""} ${r.uid === me ? "next" : ""}"><td>${medal(i)}</td><td><b>${esc(r.name)}</b></td>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
     let html = "", list = data[tab];
-    if (tab === "part") {
+    if (tab === "lvl") {
+      html = list.length ? table(["المتفاعل", "المستوى", "الخبرة", "الاشتراك"], list.slice(0, TOP).map((r, i) => tr(i, r, [`<b class="gold">${Lv.levelOf(r.xp)}</b>`, r.xp.toLocaleString("en"), r.subMonths ? r.subMonths + " شهر" : "—"]))) : "";
+    } else if (tab === "part") {
       html = list.length ? table(["المشارك", "المسابقات", "الفوز"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a, r.b || "—"]))) : "";
     } else if (tab === "hunt") {
       html = list.length ? table(["المخمّن", "التخمينات", "المركز الأول", "بالمراكز الثلاثة", "متوسط الخطأ"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a, r.b || "—", r.c || "—", (r.d / r.a * 100).toLocaleString("en", { maximumFractionDigits: 1 }) + "%"]))) : "";
@@ -73,7 +77,7 @@
       html = list.length ? table(["اللاعب", "بطل", "وصيف", "ثالث"], list.slice(0, TOP).map((r, i) => tr(i, r, [r.a || "—", r.b || "—", r.c || "—"]))) : "";
     }
     const en = window.I18N && I18N.lang === "en", c = data.counts;
-    const note = tab === "part" ? (en ? `From the last ${c.g} giveaways` : `من آخر ${c.g} مسابقة`) : tab === "hunt" ? (en ? `From ${c.h} finished bonus hunts` : `من ${c.h} بونص هانت منتهي`) : (en ? `From ${c.t} finished tournaments` : `من ${c.t} بطولة منتهية`);
+    const note = tab === "lvl" ? (en ? "Level from chat, watch time and subscription" : "المستوى من الشات والتواجد بالبث والاشتراك") : tab === "part" ? (en ? `From the last ${c.g} giveaways` : `من آخر ${c.g} مسابقة`) : tab === "hunt" ? (en ? `From ${c.h} finished bonus hunts` : `من ${c.h} بونص هانت منتهي`) : (en ? `From ${c.t} finished tournaments` : `من ${c.t} بطولة منتهية`);
     root.innerHTML = html ? `<div class="hint" style="margin-bottom:12px">${note}</div>${html}` : '<div class="empty">ما في بيانات لسا</div>';
   }
 
