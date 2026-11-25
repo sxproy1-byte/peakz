@@ -58,9 +58,15 @@
   function renderTimers() {
     const el = $("tList"); if (!el) return;
     const ks = Object.keys(timers);
-    el.innerHTML = ks.length ? ks.map((k) => { const t = timers[k]; return `<div class="arow"><div class="ainfo"><b>كل ${esc(t.every)} دقيقة</b> ${t.on === false ? '<span class="chip">متوقفة</span>' : ""}<div style="color:var(--muted);margin-top:4px">${esc(t.text)}</div></div>
+    el.innerHTML = ks.length ? ks.map((k) => { const t = timers[k]; return `<div class="arow"><div class="ainfo"><b dir="ltr">⏱ ${esc(t.every)}m</b> ${t.on === false ? '<span class="chip">متوقفة</span>' : ""}<div style="color:var(--muted);margin-top:4px">${esc(t.text)}</div></div>
       <div class="row"><button class="btn ghost small" data-tt="${esc(k)}">${t.on === false ? "تشغيل" : "إيقاف"}</button><button class="btn ghost small" data-te="${esc(k)}">تعديل</button><button class="btn danger small" data-td="${esc(k)}">حذف</button></div></div>`; }).join("")
-      : '<div class="empty" style="padding:14px">ما في رسائل محفوظة، فالبوت حالياً بيرسل رابط الديسكورد والموقع بالتناوب كل 10 دقائق. أضف أول رسالة وبتحل مكانهم.</div>';
+      : '<div class="empty" style="padding:14px"><div>ما في رسائل محفوظة. البوت حالياً بيرسل رابط الديسكورد والموقع بالتناوب كل 10 دقائق.</div><div class="center" style="margin-top:10px"><button class="btn ghost small" id="tDefaults">إضافة الرسالتين الافتراضيتين</button></div></div>';
+    const dfl = $("tDefaults");
+    if (dfl) dfl.onclick = async () => {
+      const site = location.origin + location.pathname.replace(/[^/]*$/, ""), dc = "https://discord.gg/y8bqeNZqy9";
+      try { await db.ref("timers").update({ [db.ref("timers").push().key]: { text: "💬 انضموا لسيرفر الديسكورد " + dc, every: 10, on: true }, [db.ref("timers").push().key]: { text: "🌐 موقعنا للمسابقات والبونص هانت والبطولات " + site, every: 10, on: true } }); App.toast("تمت الإضافة ✓"); }
+      catch (e) { App.toast("فشل الحفظ — انشر قواعد Firebase الجديدة"); }
+    };
     el.querySelectorAll("[data-tt]").forEach((b) => (b.onclick = () => db.ref("timers/" + b.dataset.tt + "/on").set(timers[b.dataset.tt].on === false)));
     el.querySelectorAll("[data-te]").forEach((b) => (b.onclick = () => { const t = timers[b.dataset.te]; $("tText").value = t.text; $("tEvery").value = t.every; $("tSave").dataset.id = b.dataset.te; $("tSave").textContent = "حفظ التعديل"; $("tText").focus(); }));
     el.querySelectorAll("[data-td]").forEach((b) => (b.onclick = async () => { if (!confirm("متأكد من الحذف؟")) return; await db.ref("timers/" + b.dataset.td).remove(); App.toast("تم الحذف"); }));
