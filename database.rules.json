@@ -24,6 +24,10 @@
       ".read": true,
       ".write": "auth.token.admin === true"
     },
+    "timers": {
+      ".read": "auth.token.admin === true",
+      ".write": "auth.token.admin === true"
+    },
     "commands": {
       ".read": true,
       ".write": "auth.token.admin === true"

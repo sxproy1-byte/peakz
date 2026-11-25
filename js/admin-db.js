@@ -8,7 +8,7 @@
 
   let users = {}, profiles = {}, verifiedMap = {}; const shown = new Set();
   let blocked = {}, cleared = {}, guardCfg = {}, bans = {}, vpn = {};
-  let cmds = {}, botLast = null;
+  let cmds = {}, botLast = null, timers = {};
   let hook = null, lastChatAt = 0;   // حالة ربط الشات (Webhook)
 
   App.onUser((u) => {
@@ -45,6 +45,26 @@
     el.querySelectorAll("[data-cdel]").forEach((b) => (b.onclick = async () => { if (!confirm("متأكد من الحذف؟")) return; await db.ref("commands/" + b.dataset.cdel).remove(); App.toast("تم الحذف"); }));
   }
 
+
+  /* ---------- رسائل البوت المؤقتة (كل N دقيقة) ---------- */
+  async function saveTimer() {
+    const text = $("tText").value.trim(), every = Math.max(1, Math.min(720, parseInt($("tEvery").value, 10) || 0));
+    if (!text) return App.toast("اكتب نص الرسالة");
+    if (!every) return App.toast("اكتب كل كم دقيقة");
+    const id = $("tSave").dataset.id || db.ref("timers").push().key;
+    try { await db.ref("timers/" + id).update({ text, every, on: true }); App.toast("تم الحفظ ✓"); $("tText").value = ""; $("tSave").dataset.id = ""; $("tSave").textContent = "إضافة رسالة"; }
+    catch (e) { App.toast("فشل الحفظ — انشر قواعد Firebase الجديدة"); }
+  }
+  function renderTimers() {
+    const el = $("tList"); if (!el) return;
+    const ks = Object.keys(timers);
+    el.innerHTML = ks.length ? ks.map((k) => { const t = timers[k]; return `<div class="arow"><div class="ainfo"><b>كل ${esc(t.every)} دقيقة</b> ${t.on === false ? '<span class="chip">متوقفة</span>' : ""}<div style="color:var(--muted);margin-top:4px">${esc(t.text)}</div></div>
+      <div class="row"><button class="btn ghost small" data-tt="${esc(k)}">${t.on === false ? "تشغيل" : "إيقاف"}</button><button class="btn ghost small" data-te="${esc(k)}">تعديل</button><button class="btn danger small" data-td="${esc(k)}">حذف</button></div></div>`; }).join("")
+      : '<div class="empty" style="padding:14px">ما في رسائل محفوظة، فالبوت حالياً بيرسل رابط الديسكورد والموقع بالتناوب كل 10 دقائق. أضف أول رسالة وبتحل مكانهم.</div>';
+    el.querySelectorAll("[data-tt]").forEach((b) => (b.onclick = () => db.ref("timers/" + b.dataset.tt + "/on").set(timers[b.dataset.tt].on === false)));
+    el.querySelectorAll("[data-te]").forEach((b) => (b.onclick = () => { const t = timers[b.dataset.te]; $("tText").value = t.text; $("tEvery").value = t.every; $("tSave").dataset.id = b.dataset.te; $("tSave").textContent = "حفظ التعديل"; $("tText").focus(); }));
+    el.querySelectorAll("[data-td]").forEach((b) => (b.onclick = async () => { if (!confirm("متأكد من الحذف؟")) return; await db.ref("timers/" + b.dataset.td).remove(); App.toast("تم الحذف"); }));
+  }
 
   /* ---------- الحماية من الحسابات المكررة (Alts) + الحظر ---------- */
   const REASON = { ip: "نفس الـ IP", dev: "نفس الجهاز/المتصفح", fp: "نفس بصمة الجهاز", stake: "نفس يوزر ستيك", wallet: "نفس عنوان المحفظة", discord: "نفس الديسكورد" };
@@ -152,6 +172,16 @@
         <p class="hint" style="text-align:start;margin-top:10px">الأوامر <b dir="ltr">!g</b> و<b dir="ltr">!mg</b> محجوزة للبونص هانت. كل أمر بيرد مرة كل 10 ثواني بالكثير (عشان ما يتسبّم الشات).</p>
       </div>
 
+      <div class="panel"><h2>⏱️ رسائل البوت المؤقتة</h2>
+        <div class="form">
+          <div class="field" style="grid-column:span 2"><label>نص الرسالة</label><input id="tText" maxlength="400" placeholder="💬 انضموا للديسكورد: https://discord.gg/..."></div>
+          <div class="field"><label>كل كم دقيقة</label><input id="tEvery" type="number" min="1" max="720" value="10" dir="ltr"></div>
+          <div class="field"><label>&nbsp;</label><button class="btn primary" id="tSave" style="width:100%">إضافة رسالة</button></div>
+        </div>
+        <div class="alist" id="tList" style="margin-top:12px"></div>
+        <p class="hint" style="text-align:start;margin-top:10px">الرسائل بتنرسل بس لما يكون البث شغّال، وكل رسالة بتتكرر حسب وقتها. البوت بيفحص كل دقيقة، فالدقة بحدود دقيقة.</p>
+      </div>
+
       <div class="panel"><h2>📣 تنبيهات الديسكورد</h2>
         <p class="hint" style="text-align:start;margin-bottom:12px;font-size:14px" id="ntState">جاري الفحص...</p>
         <div class="row" style="margin-bottom:12px;gap:18px">
@@ -162,7 +192,7 @@
         </div>
         <div class="row" style="gap:12px;align-items:center"><label class="row" style="gap:8px">منشن: <select id="nt_ping"><option value="">بدون منشن</option><option value="here">@here</option><option value="everyone">@everyone</option></select></label>
           <button class="btn primary small" id="ntTest">إرسال رسالة تجربة</button></div>
-        <p class="hint" style="margin-top:10px;text-align:start">التنبيه بيوصل لقناة الديسكورد اللي عملت لها Webhook. تنبيه بدء البث بيتفحص كل 5 دقائق.</p>
+        <p class="hint" style="margin-top:10px;text-align:start">التنبيه بيوصل لقناة الديسكورد اللي عملت لها Webhook. تنبيه بدء البث بيتفحص كل دقيقة.</p>
       </div>
 
       <div class="panel"><h2>👥 المستخدمين <small id="uCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
@@ -173,6 +203,7 @@
       </div>`;
 
     $("cSave").onclick = saveCmd;
+    $("tSave").onclick = saveTimer;
     ["giveaway", "hunt", "tournament", "live"].forEach((k) => ($("nt_" + k).onchange = () => db.ref("config/notify/" + k).set($("nt_" + k).checked).catch(() => App.toast("فشل الحفظ"))));
     $("nt_ping").onchange = () => db.ref("config/notify/ping").set($("nt_ping").value).catch(() => App.toast("فشل الحفظ"));
     $("ntTest").onclick = async () => { $("ntTest").disabled = true; try { await adminPost("/guard/notify", { type: "test" }); App.toast("انرسلت رسالة التجربة ✓"); } catch (e) { App.toast("فشل الإرسال: " + String(e.message || e).slice(0, 80)); } $("ntTest").disabled = false; };
@@ -183,6 +214,7 @@
     ["ip", "dev", "fp", "vpn"].forEach((k) => ($("gc_" + k).onchange = saveGuardCfg));
     $("crConnect").onclick = () => { location.href = C.workerUrl + "/connect?r=admin-database.html"; };
     db.ref("commands").on("value", (x) => { cmds = x.val() || {}; renderCmds(); });
+    db.ref("timers").on("value", (x) => { timers = x.val() || {}; renderTimers(); });
     db.ref("config/botLast").on("value", (x) => { botLast = x.val(); renderBot(); });
     db.ref("config/guard").on("value", (x) => { guardCfg = x.val() || {}; renderGuardCfg(); });
     db.ref("bans").on("value", (x) => { bans = x.val() || {}; renderAlts(); renderUsers(); }, () => {});
