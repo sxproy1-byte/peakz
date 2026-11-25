@@ -8,7 +8,11 @@
     const [gs, hs, ts, top] = await Promise.all([val("giveaways", 60), val("hunts", 40), val("tournaments", 40), Lv.top(5).catch(() => [])]);
     const G = Object.entries(gs).map(([id, g]) => ({ id, ...g })).filter((g) => !g.tournament).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     const now = App.now(), done = G.filter((g) => g.status !== "open" || g.endsAt <= now);
-    const winnersN = done.reduce((n, g) => n + (g.winners ? Object.keys(g.winners).length : 0), 0);
+    const winSet = new Set();
+    done.forEach((g) => Object.keys(g.winners || {}).forEach((k) => winSet.add(k)));
+    Object.values(hs).forEach((h) => ((h.final && h.final.winners) || []).forEach((w) => winSet.add(w.uid || w.name)));
+    Object.values(ts).forEach((t) => { const f = t.final || {}; [f.champion, f.runnerUp, f.third].forEach((p) => { if (p) winSet.add(p.uid || p.name); }); });
+    const winnersN = winSet.size;
     const hDone = Object.values(hs).filter((h) => h.phase === "ended").length, tDone = Object.values(ts).filter((t) => t.final).length;
     const stats = [["مسابقات منتهية", done.length], ["فائزون", winnersN], ["بونص هانت", hDone], ["بطولات", tDone]];
     let html = "";
