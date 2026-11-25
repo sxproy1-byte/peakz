@@ -18,6 +18,24 @@
     setTimeout(() => el.remove(), 2600);
   };
 
+
+  /* سجل نشاط الأدمن: أي كتابة من حساب أدمن على بيانات الإدارة بتنسجّل (مين، وشو، وأي مسار). الكتابات المتكررة على نفس المسار بتتجمّع كل 30 ثانية */
+  (function auditLog() {
+    const R = firebase.database.Reference && firebase.database.Reference.prototype; if (!R || R.__audited) return; R.__audited = true;
+    const WATCH = /^(giveaways|hunts|tournaments|levels|cosmetics|commands|timers|config|badgeCatalog|slotcalls|cleared|blocked)(\/|$)/, seen = {};
+    const log = (act, ref) => {
+      try {
+        const u = App.user; if (!u || !u.admin) return;
+        const path = ref.toString().replace(/^https?:\/\/[^/]+\/?/, "").split("?")[0]; if (!WATCH.test(path)) return;
+        if (/^config\/(liveState|notifyLast|botLast|webhook|chatAuth)/.test(path)) return;
+        const seg = path.split("/"), key = u.uid + "|" + seg.slice(0, 2).join("/") + "|" + act, now = Date.now();
+        if (seen[key] && now - seen[key] < 30000) return; seen[key] = now;
+        db.ref("audit").push({ uid: u.uid, name: u.name, act, path: seg.slice(0, 3).join("/"), at: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
+      } catch (e) {}
+    };
+    ["set", "update", "remove"].forEach((m) => { const o = R[m]; R[m] = function () { log(m, this); return o.apply(this, arguments); }; });
+  })();
+
   App.login = (returnTo) => {
     const r = returnTo ? "?r=" + encodeURIComponent(returnTo) : "";
     location.href = C.workerUrl + "/login" + r;
@@ -138,6 +156,7 @@
       }, () => {});
       if (!App.user.admin) trackDevice(App.user);
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
+      db.ref("users/" + u.uid + "/createdAt").transaction((v) => v || Date.now()).catch(() => {});
     }
     if (App.user && App.user.admin && App.hideVpnGate && !/[?&]vpntest=1/.test(location.search)) App.hideVpnGate();
     App.ready = true; document.body.classList.add("ready");
@@ -178,7 +197,7 @@
   App.shell = function (active) {
     if (!document.getElementById("siteFoot")) {
       const f = document.createElement("footer"); f.id = "siteFoot"; f.className = "site-foot";
-      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
+      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="faq.html">الأسئلة الشائعة</a>·<a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
       document.body.appendChild(f);
     }
     const link = (k, cls) => { const [href, ic, label] = PAGES[k]; return `<a href="${href}" class="${cls || ""} ${k === active ? "active" : ""}">${label}</a>`; };

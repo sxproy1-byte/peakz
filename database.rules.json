@@ -24,6 +24,12 @@
       ".read": true,
       ".write": "auth.token.admin === true"
     },
+    "audit": {
+      ".read": "auth.token.admin === true",
+      "$id": {
+        ".write": "auth.token.admin === true && newData.child('uid').val() === auth.uid"
+      }
+    },
     "timers": {
       ".read": "auth.token.admin === true",
       ".write": "auth.token.admin === true"

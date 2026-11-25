@@ -149,12 +149,18 @@
     catch (e) { App.toast("فشل المسح — حدّث الـ Worker"); }
   }
 
+  const ACT = { set: "تعديل", update: "تعديل", remove: "حذف", ban: "حظر", unban: "فك حظر", "clear-vpn": "مسح كاش VPN" };
+  function renderAudit(rows) {
+    const el = $("auBody"); if (!el) return;
+    el.innerHTML = rows.length ? rows.map((r) => `<tr><td dir="ltr" style="white-space:nowrap">${new Date(r.at || 0).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })}</td><td>${esc(r.name || r.uid)}</td><td>${esc(ACT[r.act] || r.act)}</td><td dir="ltr">${esc(r.path || "")}</td></tr>`).join("") : '<tr><td colspan="4" class="msg">لا يوجد نتائج</td></tr>';
+  }
+
   let started = false;
   function start() {
     if (started) return;
     started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
 
       <div class="panel"><h2>🕵️ Alts — الحسابات المكررة <small id="altsCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <p class="hint" style="text-align:start;margin-bottom:12px">أي حسابين بنفس يوزر ستيك / عنوان المحفظة / الديسكورد، أو بنفس الـ IP أو نفس الجهاز، بينلغى توثيقهم تلقائياً وبيظهروا بالجدول. <b>حظر</b>: بيقدر يتفرّج بس، وكل حساباته المرتبطة بتنحظر معه. بعد <b>فك الحظر</b> عن حساب، أي حساب جديد بنفس الجهاز/الـ IP بينحظر لحاله. لو الحسابين لأشخاص مختلفين فعلاً (إخوة بنفس البيت مثلاً) اضغط <b>اعتماد</b>.</p>
@@ -208,6 +214,11 @@
         <p class="hint" style="margin-top:10px;text-align:start">التنبيه بيوصل لقناة الديسكورد اللي عملت لها Webhook. تنبيه بدء البث بيتفحص كل دقيقة.</p>
       </div>
 
+      <div class="panel"><h2>📜 سجل نشاط الأدمن</h2>
+        <div class="utable-wrap"><table class="utable"><thead><tr><th>الوقت</th><th>الأدمن</th><th>العملية</th><th>المسار</th></tr></thead><tbody id="auBody"><tr><td colspan="4" class="msg">جاري التحميل...</td></tr></tbody></table></div>
+        <p class="hint" style="text-align:start;margin-top:10px">آخر 150 عملية. الكتابات المتكررة على نفس الشي خلال 30 ثانية بتنسجّل مرة وحدة.</p>
+      </div>
+
       <div class="panel"><h2>👥 المستخدمين <small id="uCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <div class="row" style="margin-bottom:12px"><input id="uSearch" placeholder="ابحث بالاسم / ستيك / ديسكورد..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(5,7,15,.5)">
           <button class="btn ghost small" id="uCsv">⬇️ تصدير CSV</button></div>
@@ -228,6 +239,7 @@
     ["ip", "dev", "fp", "vpn"].forEach((k) => ($("gc_" + k).onchange = saveGuardCfg));
     $("crConnect").onclick = () => { location.href = C.workerUrl + "/connect?r=admin-database.html"; };
     db.ref("commands").on("value", (x) => { cmds = x.val() || {}; renderCmds(); });
+    db.ref("audit").orderByChild("at").limitToLast(150).on("value", (x) => { const a = []; x.forEach((c) => { a.push(c.val()); }); renderAudit(a.reverse()); }, () => renderAudit([]));
     db.ref("timers").on("value", (x) => { timers = x.val() || {}; renderTimers(); });
     db.ref("config/botLast").on("value", (x) => { botLast = x.val(); renderBot(); });
     db.ref("config/guard").on("value", (x) => { guardCfg = x.val() || {}; renderGuardCfg(); });

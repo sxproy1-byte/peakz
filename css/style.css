@@ -530,3 +530,6 @@ td .gold,.gold{color:var(--gold)}
 .btable.lb th:first-child,.btable.lb td:first-child{text-align:center;width:56px}
 .btable.lb th:nth-child(n+3),.btable.lb td:nth-child(n+3){text-align:center}
 .btable td a{color:inherit}.btable td a:hover{text-decoration:underline}
+
+.faq details{border-bottom:1px solid var(--line);padding:14px 2px}.faq details:last-child{border-bottom:0}.faq summary{cursor:pointer;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:12px}.faq summary::after{content:"+";color:var(--muted);font-size:20px;line-height:1}.faq details[open] summary::after{content:"–"}.faq summary::-webkit-details-marker{display:none}.faq p{margin:10px 0 0;color:#c9d6f2;line-height:1.9}
+.st-bars{display:flex;flex-direction:column;gap:8px;margin-top:10px}.st-row{display:grid;grid-template-columns:minmax(90px,200px) 1fr 56px;gap:10px;align-items:center;font-size:14px}.st-l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cfe0ff}.st-t{height:10px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}.st-t i{display:block;height:100%;background:var(--b2,#3b82f6);border-radius:6px}.st-row b{text-align:end}
