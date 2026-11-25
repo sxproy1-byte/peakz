@@ -143,6 +143,12 @@
     db.ref("config/guard").set({ ip: $("gc_ip").checked, dev: $("gc_dev").checked, fp: $("gc_fp").checked, vpn: $("gc_vpn").checked }).then(() => App.toast("تم الحفظ ✓"), () => App.toast("فشل الحفظ"));
   }
 
+  async function clearVpnCache() {
+    if (!confirm("بتمسح نتائج فحص الـ VPN المخزّنة وعلامات الـ VPN عن الحسابات. الفحص بيتعاد عند أول دخول. متأكد؟")) return;
+    try { const r = await adminPost("/guard/clear-vpn", {}); App.toast("تم المسح ✓ (" + (r.accounts || 0) + " حساب)"); }
+    catch (e) { App.toast("فشل المسح — حدّث الـ Worker"); }
+  }
+
   let started = false;
   function start() {
     if (started) return;
@@ -158,6 +164,7 @@
           <label class="row" style="gap:6px"><input type="checkbox" id="gc_vpn"> منع VPN / بروكسي / Tor</label>
           <label class="row" style="gap:6px"><input type="checkbox" id="gc_fp"> بصمة الجهاز (ممكن تغلط مع نفس نوع الجوال)</label>
         </div>
+        <div class="row" style="margin-bottom:12px"><button class="btn ghost small" id="vpnClear">🧹 مسح كاش الـ VPN</button></div>
         <div class="alist" id="altsList"></div>
       </div>
 
@@ -209,6 +216,7 @@
       </div>`;
 
     $("cSave").onclick = saveCmd;
+    $("vpnClear").onclick = clearVpnCache;
     $("tSave").onclick = saveTimer;
     ["giveaway", "hunt", "tournament", "live"].forEach((k) => ($("nt_" + k).onchange = () => db.ref("config/notify/" + k).set($("nt_" + k).checked).catch(() => App.toast("فشل الحفظ"))));
     $("nt_ping").onchange = () => db.ref("config/notify/ping").set($("nt_ping").value).catch(() => App.toast("فشل الحفظ"));
