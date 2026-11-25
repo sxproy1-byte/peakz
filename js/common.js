@@ -98,9 +98,9 @@
   (function vpnGate() {
     if (/overlay/.test(location.pathname)) return;
     let adm = false; try { adm = JSON.parse(localStorage.getItem("lastUser") || "{}").admin === true; } catch (e) {}
-    if (adm) return;
+    if (adm && !/[?&]vpntest=1/.test(location.search)) return;   // الأدمن مستثنى (للتجربة: أضف ?vpntest=1 للرابط)
     const show = () => {
-      if (document.getElementById("vpnGate") || (App.user && App.user.admin)) return;
+      if (document.getElementById("vpnGate") || (App.user && App.user.admin && !/[?&]vpntest=1/.test(location.search))) return;
       const d = document.createElement("div"); d.id = "vpnGate";
       d.style.cssText = "position:fixed;inset:0;z-index:99999;background:#05070f;color:#eef3ff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:inherit";
       d.innerHTML = '<div style="max-width:420px"><h2 style="margin:10px 0">أوقف الـ VPN أو البروكسي</h2><p style="color:#9aa8c7;line-height:1.8">الموقع ما بيشتغل مع VPN أو بروكسي أو Tor. طفّيه وحدّث الصفحة عشان تدخل.</p><button class="btn primary" id="vpnRetry" style="margin-top:14px">حدّثت، جرّب مرة ثانية</button></div>';
@@ -139,7 +139,7 @@
       if (!App.user.admin) trackDevice(App.user);
       db.ref("users/" + u.uid).update({ name: App.user.name, avatar, lastLogin: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
     }
-    if (App.user && App.user.admin && App.hideVpnGate) App.hideVpnGate();
+    if (App.user && App.user.admin && App.hideVpnGate && !/[?&]vpntest=1/.test(location.search)) App.hideVpnGate();
     App.ready = true; document.body.classList.add("ready");
     renderUserBox();
     App.listeners.forEach((fn) => fn(App.user));
