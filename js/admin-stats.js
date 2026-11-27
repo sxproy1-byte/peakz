@@ -3,7 +3,7 @@
   const { db, esc } = App;
   App.shell("giveaways");
   const root = document.getElementById("root");
-  const TABS = `<h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-stats.html" class="on">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>`;
+  const TABS = `<h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-leaderboard.html">🏅 ليدر بورد</a><a href="admin-stats.html" class="on">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>`;
   const val = (p) => db.ref(p).once("value").then((s) => s.val() || {}).catch(() => ({}));
   const num = (n) => Number(n || 0).toLocaleString("en");
   const DAY = 86400000;

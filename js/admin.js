@@ -26,7 +26,7 @@
     if (started) return;
     started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html" class="on">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html" class="on">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-leaderboard.html">🏅 ليدر بورد</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
 
       ${App.overlayPanel("overlay.html", "المسابقات", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة، بيتكيّف تلقائياً). بيعرض المسابقة الجارية (الاسم، الجائزة، الفائزين، الوقت، المشاركين) أو \"لا يوجد مسابقات نشطة\".")}
       <div class="panel"><h2>🎁 مسابقة جديدة</h2>

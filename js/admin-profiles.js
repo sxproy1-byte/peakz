@@ -4,7 +4,7 @@
   App.shell("giveaways");
   const root = document.getElementById("root");
   const $ = (id) => document.getElementById(id);
-  const TABS = (on) => `<h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html" class="on">👤 البروفايلات</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>`;
+  const TABS = (on) => `<h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html" class="on">👤 البروفايلات</a><a href="admin-leaderboard.html">🏅 ليدر بورد</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>`;
   let users = {}, levels = {}, id = new URLSearchParams(location.search).get("id") || "", newImg = {};
 
   App.onUser((u) => {

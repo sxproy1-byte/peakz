@@ -24,6 +24,10 @@
       ".read": true,
       ".write": "auth.token.admin === true"
     },
+    "ccBoard": {
+      ".read": true,
+      ".write": "auth.token.admin === true"
+    },
     "audit": {
       ".read": "auth.token.admin === true",
       "$id": {

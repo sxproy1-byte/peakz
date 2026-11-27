@@ -160,7 +160,7 @@
     if (started) return;
     started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-leaderboard.html">🏅 ليدر بورد</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html" class="on">🗄️ قاعدة البيانات</a></div>
 
       <div class="panel"><h2>🕵️ Alts — الحسابات المكررة <small id="altsCount" style="color:var(--muted);font-weight:400;font-size:13px"></small></h2>
         <p class="hint" style="text-align:start;margin-bottom:12px">أي حسابين بنفس يوزر ستيك / عنوان المحفظة / الديسكورد، أو بنفس الـ IP أو نفس الجهاز، بينلغى توثيقهم تلقائياً وبيظهروا بالجدول. <b>حظر</b>: بيقدر يتفرّج بس، وكل حساباته المرتبطة بتنحظر معه. بعد <b>فك الحظر</b> عن حساب، أي حساب جديد بنفس الجهاز/الـ IP بينحظر لحاله. لو الحسابين لأشخاص مختلفين فعلاً (إخوة بنفس البيت مثلاً) اضغط <b>اعتماد</b>.</p>

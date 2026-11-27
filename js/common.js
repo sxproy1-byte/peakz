@@ -190,14 +190,16 @@
     giveaways: ["giveaways.html", "gift", "المسابقات", "giveaways", "سحوبات مباشرة على البث"],
     bonus: ["bonus.html", "target", "البونص هانت", "bonus", "خمّن الربح واربح الجوائز"],
     tournaments: ["tournaments.html", "bracket", "البطولات", "tournaments", "تحدّي لاعبين بشجرة مباشرة"],
-    leaderboard: ["leaderboard.html", "trophy", "المتصدرين", "leaderboard"],
+    leaderboard: ["leaderboard.html", "trophy", "ليدر بورد", "leaderboard"],
+    stats: ["stats.html", "trophy", "الإحصائيات", "stats"],
+    crowncases: ["crowncases.html", "gift", "CrownCases", "crowncases"],
   };
   const EVENTS = ["giveaways", "bonus", "tournaments"];
 
   App.shell = function (active) {
     if (!document.getElementById("siteFoot")) {
       const f = document.createElement("footer"); f.id = "siteFoot"; f.className = "site-foot";
-      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="faq.html">الأسئلة الشائعة</a>·<a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
+      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="stats.html">الإحصائيات</a>·<a href="crowncases.html">CrownCases</a>·<a href="faq.html">الأسئلة الشائعة</a>·<a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
       document.body.appendChild(f);
     }
     const link = (k, cls) => { const [href, ic, label] = PAGES[k]; return `<a href="${href}" class="${cls || ""} ${k === active ? "active" : ""}">${label}</a>`; };
@@ -207,7 +209,7 @@
       nav.innerHTML = link("home") +
         `<div class="dd ${evOn ? "active" : ""}"><button type="button" class="ddb" id="ddBtn" aria-haspopup="true" aria-expanded="false">الفعاليات ${NI.chev}</button>
           <div class="ddp" id="ddPanel" hidden>${EVENTS.map((k) => { const [href, ic, label, , sub] = PAGES[k]; return `<a href="${href}" class="ddi ${k === active ? "active" : ""}"><span class="ddic">${NI[ic]}</span><span><b>${label}</b></span></a>`; }).join("")}</div></div>` +
-        link("leaderboard");
+        link("leaderboard") + link("stats") + link("crowncases");
       const btn = document.getElementById("ddBtn"), pn = document.getElementById("ddPanel");
       btn.onclick = (e) => { e.stopPropagation(); const o = pn.hidden; pn.hidden = !o; btn.setAttribute("aria-expanded", String(o)); };
       document.addEventListener("click", (e) => { if (!pn.hidden && !e.target.closest(".dd")) { pn.hidden = true; btn.setAttribute("aria-expanded", "false"); } });

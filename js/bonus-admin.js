@@ -20,7 +20,7 @@
   function start() {
     if (started) return; started = true;
     root.innerHTML = `
-      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html" class="on">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
+      <h1 class="plain">لوحة التحكم</h1><div class="atabs"><a href="admin.html">🎟️ المسابقات</a><a href="admin-bonus.html" class="on">🎯 البونص هانت</a><a href="admin-tournaments.html">⚔️ البطولات</a><a href="admin-slots.html">🎰 السلوت كول</a><a href="admin-profiles.html">👤 البروفايلات</a><a href="admin-leaderboard.html">🏅 ليدر بورد</a><a href="admin-stats.html">📊 الإحصائيات</a><a href="admin-database.html">🗄️ قاعدة البيانات</a></div>
       ${App.overlayPanel("overlay-bonus.html", "البونص هانت", "بـ OBS: Sources ← Browser ← الصق الرابط. الحجم 440×320 (أو أي حجم بنفس النسبة). بيعرض آخر هانت شغّال تلقائياً: الرصيد، البريك إيفن، قائمة البونصات مع الملاحظات.")}
       <div class="panel"><h2>➕ هانت جديد</h2><div class="form">
         <div class="field"><label>العنوان</label><input id="cTitle" placeholder="بونص هانت الجمعة"></div>
