@@ -17,6 +17,9 @@
     const stats = [["مسابقات منتهية", done.length], ["فائزون", winnersN], ["بونص هانت", hDone], ["بطولات", tDone]];
     let html = "";
     if (stats.some((s) => s[1])) html += `<div class="hx-stats">${stats.map(([a, b]) => `<div class="panel"><small>${a}</small><b>${b.toLocaleString("en")}</b></div>`).join("")}</div>`;
+    html += `<div class="panel cc-promo"><a class="cc-pbanner" href="https://crowncases.gg/r/Peakz9" target="_blank" rel="noopener sponsored"><img src="img/crowncases-banner.jpg" alt="CrownCases" loading="lazy" width="1600" height="364"></a>
+      <div class="cc-ptxt"><h2>ابدأ مع CrownCases</h2><p>سجّل من الرابط بكود الإحالة <b dir="ltr">PEAKZ9</b>، وبعدها فعّل كود البرومو <b dir="ltr">PEAKZ20</b> واحصل على بونص <b dir="ltr">$20</b> على أول إيداع. الحد الأدنى للإيداع <b dir="ltr">$20</b>، وتنطبق شروط وأحكام البونصات.</p>
+      <div class="row"><a class="btn primary" href="https://crowncases.gg/r/Peakz9" target="_blank" rel="noopener sponsored">العب الآن</a><a class="btn ghost" href="crowncases.html">المزيد من العروض</a></div><small>+18 · العب بمسؤولية</small></div></div>`;
     const ev = [];
     G.filter((g) => g.status === "open" && g.endsAt > now).forEach((g) => ev.push(["مسابقة", g.title, g.prize || "", "تنتهي بعد " + left(g.endsAt - now), "giveaways.html", "شارك الآن"]));
     Object.values(hs).filter((h) => h.phase && h.phase !== "ended").forEach((h) => ev.push(["بونص هانت", h.title, "", h.guessOpen ? "التخمين مفتوح" : "جاري", "bonus.html", "شارك الآن"]));
