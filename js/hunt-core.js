@@ -34,7 +34,7 @@
   const money = (v, cur) => (v === null || v === undefined ? "—" : (Number(v) < 0 ? "-" : "") + (cur || "$") + Math.abs(Number(v)).toLocaleString("en", { maximumFractionDigits: 2 }));
   const xfmt = (x) => (x === null || x === undefined ? "—" : Number(x).toLocaleString("en", { maximumFractionDigits: 2 }) + "x");
   // ألوان الملاحظة بجانب البونص (اختيارية): g ذهبي، p بنفسجي، k أخضر، r أحمر، b أزرق
-  const NC = { g: ["#ffd36e", "#2a2008"], p: ["#b77bff", "#1e0f33"], k: ["#34f5b0", "#052a1e"], r: ["#ff6b7a", "#33080e"], b: ["#4da3ff", "#06203a"] };
+  const NC = { g: ["#9fc0ff", "#0b1a3a"], p: ["#b77bff", "#1e0f33"], k: ["#34f5b0", "#052a1e"], r: ["#ff6b7a", "#33080e"], b: ["#4da3ff", "#06203a"] };
   const noteStyle = (nc) => { const c = NC[nc] || NC.g; return `background:${c[0]};color:${c[1]}`; };
   const api = { stats, rank, money, xfmt, NC, noteStyle };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.Hunt = api;

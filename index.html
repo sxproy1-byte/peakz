@@ -6,8 +6,9 @@
 <title>PEAKZ</title>
 <style>html.i18n-wait body{visibility:hidden}</style>
 <script>try{if(localStorage.getItem("lang")==="en"&&!/overlay/.test(location.pathname)){var h=document.documentElement;h.classList.add("i18n-wait");h.lang="en";h.dir="ltr";setTimeout(function(){h.classList.remove("i18n-wait")},2500)}}catch(e){}</script>
+<script src="js/loader.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
 <link rel="icon" href="img/favicon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -18,30 +19,27 @@
   <div class="top-end"><div class="row" id="userbox"></div></div>
 </div></header>
 <main class="page">
-  <section class="home-hero">
-    <div>
-      <div class="who" style="margin-bottom:22px">
-        <img class="pfp" id="pfp" src="img/logo.png" alt="">
-        <div><h1 id="hName">PEAKZ</h1><span class="st" id="hSt"><i></i><span>جاري الفحص...</span></span></div>
-      </div>
-      <a class="cd" id="cd" href="giveaways.html" hidden><span class="cd-t"><small>مسابقة تنتهي قريباً</small><b id="cdT"></b></span><span class="cd-v" id="cdV" dir="ltr"></span></a>
-      <div class="cta">
-        <a class="btn primary" id="hWatch" target="_blank" rel="noopener">شاهد البث على كيك</a>
-        <a class="btn ghost" href="giveaways.html">المسابقات الحالية <span id="hCount"></span></a>
-        <a class="btn ghost" href="bonus.html">البونص هانت</a>
-        <a class="btn ghost" href="tournaments.html">البطولات</a>
-      </div>
-    </div>
+  <section class="hhero">
+    <h1 id="hName" dir="ltr">PEAKZ</h1>
+    <a class="st" id="hSt" target="_blank" rel="noopener"><i></i><span>...</span></a>
   </section>
+
+  <div class="hsplit">
+    <div class="hgrid">
+      <a class="panel ht" href="giveaways.html"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8c-2-4-6-3-5 0M12 8c2-4 6-3 5 0"/></svg><b>المسابقات</b></a>
+      <a class="panel ht" href="bonus.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><b>البونص هانت</b></a>
+      <a class="panel ht" href="tournaments.html"><svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4L4 20"/></svg><b>البطولات</b></a>
+      <a class="panel ht" href="crowncases.html"><svg viewBox="0 0 24 24"><path d="M3 18L2 7l5 4 5-8 5 8 5-4-1 11z"/></svg><b>CrownCases</b></a>
+      <a class="panel ht" href="stats.html"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>المستويات</b></a>
+    </div>
+    <aside class="panel hlb" id="hlb"></aside>
+  </div>
 
   <div id="hx"></div>
 
-  <section class="home-stream">
-    <a class="stream off" id="stream" target="_blank" rel="noopener">
-      <div class="ph" id="ph"><img src="img/logo.png" alt=""></div>
-      <span class="tag" id="tag">...</span>
-      <div class="meta"><b id="sTitle"></b><small id="sSub"></small></div>
-    </a>
+  <section class="hsoc">
+    <a class="btn ghost" id="hDiscord" target="_blank" rel="noopener"><img src="img/discord.png" alt="" width="26" height="20">انضم للديسكورد</a>
+    <a class="btn ghost" id="hKick" target="_blank" rel="noopener"><img src="img/kick.png" alt="" width="18" height="20">تابع البث على كيك</a>
   </section>
 </main>
 

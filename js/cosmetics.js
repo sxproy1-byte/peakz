@@ -1,7 +1,7 @@
 // تخصيص البروفايل (صورة + بانر + نبذة) + عرض بادجات كيك. الصور بتتصغّر بالمتصفح وبتنحفظ كنص بقاعدة البيانات (cosmetics/{uid})
 (function () {
   const KB = {
-    broadcaster: ["Broadcaster", "#ef5b6b"], moderator: ["MOD", "#3ecf8e"], vip: ["VIP", "#e65bbd"], og: ["OG", "#e5b94e"],
+    broadcaster: ["Broadcaster", "#ef5b6b"], moderator: ["MOD", "#3ecf8e"], vip: ["VIP", "#e65bbd"], og: ["OG", "#9fc0ff"],
     founder: ["Founder", "#a78bfa"], subscriber: ["Sub", "#53fc18"], sub_gifter: ["Gifter", "#4aa8ff"], verified: ["Verified", "#3ecf8e"], staff: ["Staff", "#ef5b6b"],
   };
   const clean = (s) => String(s || "").replace(/[<>"&]/g, "");

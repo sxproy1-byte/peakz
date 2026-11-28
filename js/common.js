@@ -197,9 +197,23 @@
   const EVENTS = ["giveaways", "bonus", "tournaments"];
 
   App.shell = function (active) {
+    if (!document.documentElement.classList.contains("fx") && !/overlay/.test(location.pathname)) {
+      document.documentElement.classList.add("fx");
+      const bg = document.createElement("div"); bg.className = "bgfx"; bg.setAttribute("aria-hidden", "true");
+      bg.innerHTML = "<i></i><i></i><i></i><canvas></canvas>"; document.body.prepend(bg);
+      try {
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          const cv = bg.querySelector("canvas"), x = cv.getContext("2d"); let W = 0, H = 0, P = [], raf = 0;
+          const rs = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; P = Array.from({ length: Math.round(Math.min(40, W / 36)) }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.6 + .5, v: Math.random() * .12 + .04, a: Math.random() * .4 + .25 })); };
+          const step = () => { x.clearRect(0, 0, W, H); for (const p of P) { p.y -= p.v; if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; } x.beginPath(); x.arc(p.x, p.y, p.r, 0, 6.3); x.fillStyle = "rgba(190,210,255," + p.a + ")"; x.fill(); } raf = requestAnimationFrame(step); };
+          rs(); addEventListener("resize", rs); step();
+          document.addEventListener("visibilitychange", () => { cancelAnimationFrame(raf); if (!document.hidden) step(); });
+        }
+      } catch (e) {}
+    }
     if (!document.getElementById("siteFoot")) {
       const f = document.createElement("footer"); f.id = "siteFoot"; f.className = "site-foot";
-      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="stats.html">الإحصائيات</a>·<a href="crowncases.html">CrownCases</a>·<a href="faq.html">الأسئلة الشائعة</a>·<a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
+      f.innerHTML = `© ${new Date().getFullYear()} <b>peakz.live</b> — جميع الحقوق محفوظة<div style="margin-top:6px"><a href="faq.html">الأسئلة الشائعة</a>·<a href="legal.html#privacy">سياسة الخصوصية</a>·<a href="legal.html#terms">شروط الاستخدام</a></div>`;
       document.body.appendChild(f);
     }
     const link = (k, cls) => { const [href, ic, label] = PAGES[k]; return `<a href="${href}" class="${cls || ""} ${k === active ? "active" : ""}">${label}</a>`; };
