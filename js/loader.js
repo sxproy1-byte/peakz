@@ -1,3 +1,14 @@
+// تنظيف الرابط: يخفي .html من شريط العنوان (الصفحة تفتح بالطريقتين)
+(function () {
+  try {
+    if (!/^https?:$/.test(location.protocol)) return;
+    const p = location.pathname;
+    if (!/\.html$/.test(p)) return;
+    const np = p.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "");
+    history.replaceState(history.state, "", np + location.search + location.hash);
+  } catch (e) {}
+})();
+
 // شاشة لودينج: مرة وحدة بالجلسة، الاسم بيتعبّى بالأزرق ثم تتلاشى. (بدون أي اعتماد على باقي السكربتات)
 (function () {
   try {
