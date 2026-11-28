@@ -610,3 +610,16 @@ html.fx body{background:linear-gradient(180deg,#0b1430 0%,#0a1026 55%,#0b1a3d 10
 @media(max-width:820px){.hsplit{grid-template-columns:1fr}.hlb{order:-1}.ht{padding:24px 10px}}
 @media(max-width:520px){.hgrid{gap:10px}.ht,.ht:nth-child(n+4){grid-column:span 3}.ht:nth-child(5){grid-column:span 6}}
 html.fx{background:#0a1026}
+/* حركة المربعات عند الماوس */
+.ht{position:relative;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s,box-shadow .25s}
+.ht::before{content:"";position:absolute;inset:0;background:radial-gradient(260px 160px at 50% 0%,rgba(91,155,255,.28),transparent 70%);opacity:0;transition:opacity .3s;pointer-events:none}
+.ht svg{transition:transform .35s cubic-bezier(.2,.9,.3,1.4),stroke .25s}
+.ht b{transition:transform .25s}
+@media(hover:hover){
+.ht:hover{transform:translateY(-6px);border-color:#6f96ee;background:rgba(18,30,66,.9);box-shadow:0 14px 30px -12px rgba(37,99,235,.55)}
+.ht:hover::before{opacity:1}
+.ht:hover svg{transform:scale(1.22) translateY(-2px);stroke:#d6e4ff}
+.ht:hover b{transform:translateY(-1px)}
+}
+.ht:active{transform:translateY(-2px) scale(.99)}
+@media(prefers-reduced-motion:reduce){.ht,.ht svg,.ht b{transition:none}.ht:hover{transform:none}}
